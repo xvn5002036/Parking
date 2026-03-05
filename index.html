@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
     <style>
-        /* 引入繁體中文字體，讓列印與顯示更美觀 */
+        /* 引入繁體中文字體 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap');
         
         body { 
@@ -20,12 +20,13 @@
         /* -------------------------------------
            列印專屬設定 (Print Media Query)
            ------------------------------------- */
+        /* 這一行是消除網址與日期的關鍵！margin: 0 會把瀏覽器預設的頁首頁尾推到紙張外 */
+        @page {
+            size: 210mm 148mm landscape; /* 強制 A5 橫向 */
+            margin: 0mm !important; 
+        }
+
         @media print {
-            /* 強制設定印表機尺寸為 A5 橫向，margin: 0 可去除瀏覽器預設的網址與頁碼 */
-            @page {
-                size: 210mm 148mm; /* A5 橫向的標準尺寸 */
-                margin: 0mm; 
-            }
             body, html {
                 margin: 0;
                 padding: 0;
@@ -44,6 +45,8 @@
                 box-shadow: none !important; /* 去除網頁上的陰影 */
                 margin: 0 !important;
                 background-color: white !important;
+                page-break-after: avoid;
+                page-break-before: avoid;
             }
             #app {
                 display: block !important;
@@ -61,7 +64,7 @@
             width: 210mm;
             height: 148mm;
             background-color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* 網頁上加上陰影凸顯紙張感 */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             position: relative;
             box-sizing: border-box;
             overflow: hidden;
@@ -71,26 +74,24 @@
 </head>
 <body class="bg-gray-200 text-gray-800 h-screen overflow-hidden">
 
-    <!-- Vue 應用程式掛載點 -->
     <div id="app" class="h-full">
         <div class="app-container flex flex-col md:flex-row h-full">
             
-            <!-- 左側設定面板 (列印時會隱藏) -->
+            <!-- 左側設定面板 -->
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <p class="text-blue-200 text-sm mt-1">修改內容將即時顯示於右側預覽</p>
                 </div>
                 
                 <div class="p-6 flex-1 overflow-y-auto space-y-5">
                     
                     <!-- 車牌與車種設定 -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
+                        <div class="col-span-2">
                             <label class="block text-sm font-bold text-gray-700 mb-1">車牌號碼</label>
-                            <input type="text" v-model="plate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
+                            <input type="text" v-model="plate" placeholder="請輸入車牌" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50 text-lg uppercase">
                         </div>
-                        <div>
+                        <div class="col-span-2">
                             <label class="block text-sm font-bold text-gray-700 mb-1">車種類型</label>
                             <select v-model="vehicleType" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
                                 <option value="小客車">小客車</option>
@@ -129,7 +130,7 @@
                         <label for="autoCalc" class="ml-3 block text-sm font-bold text-blue-800">自動計算天數與平假日</label>
                     </div>
 
-                    <!-- 國定假日設定區塊 (新增) -->
+                    <!-- 國定假日設定區塊 -->
                     <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYY-MM-DD)</label>
                         <p class="text-xs text-gray-500 mb-2">每行一天。系統會自動將這些日期與「前一天」視為假日。</p>
@@ -168,8 +169,8 @@
                         列印 A5 證明
                     </button>
                     <div class="text-xs text-gray-500 mt-4 text-center space-y-1">
+                        <p class="text-red-500 font-bold">👉 若依然印出網址，請在列印畫面左側將「頁首和頁尾」取消勾選。</p>
                         <p>👉 列印時請將紙張設定為 <strong>「A5」</strong> 與 <strong>「橫向」</strong></p>
-                        <p>👉 網頁已預設消除背景網址，背景為全白</p>
                     </div>
                 </div>
             </div>
@@ -180,22 +181,17 @@
                 <!-- A5 虛擬紙張 -->
                 <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
                     
-                    <!-- Logo / Header 區塊 (仿造原圖樣式) -->
+                    <!-- Logo / Header 區塊 -->
                     <div class="w-full pl-[20mm]">
                         <div class="flex items-center space-x-3">
-                            <!-- 模擬的圖示 -->
                             <div class="relative w-[50px] h-[50px]">
-                                <!-- 紅色太陽 -->
                                 <div class="absolute inset-0 bg-[#e60012] rounded-full scale-90"></div>
-                                <!-- 黃色月牙與線條裝飾 -->
                                 <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full z-10">
                                     <path d="M 25 20 Q 5 50 25 80 Q 15 50 25 20 Z" fill="#ffc000" />
-                                    <!-- 抽象鳥/船形狀 -->
                                     <path d="M 35 55 Q 60 45 80 55 Q 70 70 35 55 Z" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M 80 55 Q 90 40 95 65 Z" fill="none" stroke="black" stroke-width="2"/>
                                 </svg>
                             </div>
-                            <!-- 飯店文字 -->
                             <div class="flex flex-col">
                                 <div class="text-[18pt] font-bold text-[#1e3a8a] tracking-widest leading-none flex items-baseline">
                                     碼頭休閒大飯店
@@ -213,7 +209,7 @@
                         <h1 class="text-[22pt] font-bold tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明</h1>
                         
                         <div class="text-[15pt] leading-[2.2] w-full text-center tracking-wide">
-                            <p>茲證明{{ plate }}，一台{{ vehicleType }},</p>
+                            <p>茲證明{{ plate || '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
                             <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
                             <p>共計{{ total }}元</p>
@@ -241,7 +237,7 @@
 
         createApp({
             data() {
-                // 取得今天與明天的日期字串 (YYYY-MM-DD)
+                // 自動取得今天與明天的日期字串
                 const today = new Date();
                 const tomorrow = new Date(today);
                 tomorrow.setDate(tomorrow.getDate() + 1);
@@ -251,25 +247,23 @@
                 };
 
                 return {
-                    // 預設代入資料
-                    plate: '',
+                    plate: '', // 預設清空車牌
                     vehicleType: '小客車',
-                    startDate: toDateString(today),
-                    endDate: toDateString(tomorrow),
+                    startDate: toDateString(today),   // 預設為今天
+                    endDate: toDateString(tomorrow),  // 預設為明天
                     weekdayPrice: 200,
                     weekendPrice: 250,
-                    nights: 1, // 預設改成 1 晚
+                    nights: 1,
                     weekdayNights: 0,
                     weekendNights: 1,
                     total: 250,
-                    autoCalculate: true, // 預設開啟自動計算
+                    autoCalculate: true,
                     manualPriceDesc: '假日250元/晚',
-                    // 預設先給幾個 2026 年的主要國定假日範例
+                    // 預設給幾個 2026 年的國定假日範例
                     holidaysText: '2026-01-01\n2026-02-28\n2026-04-04\n2026-06-19\n2026-09-25\n2026-10-10'
                 }
             },
             computed: {
-                // 自動組合平假日的描述字串
                 priceDescription() {
                     if (!this.autoCalculate) return this.manualPriceDesc;
 
@@ -288,7 +282,6 @@
                 }
             },
             watch: {
-                // 監聽車種變化，自動帶入對應的預設價格
                 vehicleType(newVal) {
                     if (newVal === '遊覽車') {
                         this.weekdayPrice = 400;
@@ -303,10 +296,9 @@
                 endDate() { if (this.autoCalculate) this.calculateAll(); },
                 weekdayPrice() { if (this.autoCalculate) this.calculateAll(); },
                 weekendPrice() { if (this.autoCalculate) this.calculateAll(); },
-                holidaysText() { if (this.autoCalculate) this.calculateAll(); } // 假日清單變更時也重新計算
+                holidaysText() { if (this.autoCalculate) this.calculateAll(); }
             },
             methods: {
-                // 自動計算天數、區分平假日與總額
                 calculateAll() {
                     if (this.startDate && this.endDate) {
                         const start = new Date(this.startDate);
@@ -320,27 +312,22 @@
                             let wEnds = 0;
                             let currDate = new Date(start);
                             
-                            // 將文字框內的國定假日轉換為陣列，方便後續比對
                             let holidayArray = this.holidaysText.split('\n').map(s => s.trim()).filter(s => s);
 
-                            // 判斷平假日
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
                                 
-                                // 取得當天的 YYYY-MM-DD 字串
                                 let todayStr = currDate.getFullYear() + '-' + String(currDate.getMonth() + 1).padStart(2, '0') + '-' + String(currDate.getDate()).padStart(2, '0');
                                 
-                                // 取得明天的 YYYY-MM-DD 字串 (用來判斷今天是不是「國定假日的前一天」)
                                 let tmrDate = new Date(currDate);
                                 tmrDate.setDate(tmrDate.getDate() + 1);
                                 let tmrStr = tmrDate.getFullYear() + '-' + String(tmrDate.getMonth() + 1).padStart(2, '0') + '-' + String(tmrDate.getDate()).padStart(2, '0');
 
-                                // 如果是星期五(5)、星期六(6)、星期日(0)，
-                                // 或是「今天」是國定假日，或是「明天」是國定假日 (代表今天是前夕)
+                                // 五(5)、六(6)、日(0) 或是 今天/明天在國定假日名單內 -> 算假日
                                 if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr) || holidayArray.includes(tmrStr)) {
-                                    wEnds++; // 算假日天數
+                                    wEnds++;
                                 } else {
-                                    wDays++; // 算平日天數
+                                    wDays++;
                                 }
                                 currDate.setDate(currDate.getDate() + 1);
                             }
@@ -349,7 +336,6 @@
                             this.weekendNights = wEnds;
                             this.total = (wDays * this.weekdayPrice) + (wEnds * this.weekendPrice);
                             
-                            // 更新手動字串作為備用
                             if (this.weekdayPrice === this.weekendPrice) {
                                 this.manualPriceDesc = `${this.weekdayPrice}元/晚`;
                             } else {
@@ -385,3 +371,5 @@
     </script>
 </body>
 </html>
+
+

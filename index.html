@@ -4,79 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>停車證明產生器</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    
     <!-- 引入 Tailwind CSS 用於快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Vue 3 用於資料雙向綁定與即時計算 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap');
-        
         body { font-family: 'Noto Sans TC', sans-serif; }
 
-        /* ==========================================
-           列印專屬安全 CSS (專治 iPhone 白畫面與多餘空白頁)
-           ========================================== */
-        @page {
-            size: A4 portrait; /* 強制 A4 直向紙張 */
-            margin: 0;
-        }
-
-        @media print {
-            /* 1. 破解 iOS 白畫面：取消所有的 overflow:hidden 與 100vh 高度限制 */
-            html, body {
-                width: 100% !important;
-                height: auto !important; 
-                margin: 0 !important;
-                padding: 0 !important;
-                background-color: white !important;
-                overflow: visible !important;
-            }
-
-            /* 2. 隱藏左側面板 */
-            .no-print {
-                display: none !important;
-            }
-
-            /* 3. 破除 flex 彈性置中，讓內容自然靠左上角貼齊，防止產生第二頁 */
-            #app, .app-container {
-                display: block !important;
-                height: auto !important;
-                overflow: visible !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            .print-wrapper {
-                display: block !important;
-                height: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background-color: white !important;
-            }
-
-            /* 4. 證明書實體：強制高度為 A4 的一半 (148.5mm) */
-            .print-area {
-                display: flex !important; /* 保留內部的文字排版 */
-                width: 100% !important;
-                height: 148.5mm !important; /* 剛好是一張 A5 的高度 */
-                margin: 0 !important;
-                padding-top: 15mm !important;
-                padding-bottom: 15mm !important;
-                box-shadow: none !important;
-                background-color: white !important;
-                /* 防止被切到下一頁 */
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-            }
-
-            * {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-
-        /* 網頁上的預覽樣式 */
+        /* 一般網頁預覽樣式 */
         .a5-landscape {
             width: 210mm;
             height: 148.5mm;
@@ -86,6 +27,46 @@
             box-sizing: border-box;
             overflow: hidden;
             flex-shrink: 0;
+        }
+
+        /* ==========================================
+           電腦專用列印 CSS (完美支援 A4 紙印上半部)
+           ========================================== */
+        @page { 
+            size: A4 portrait; /* 強制電腦印表機使用 A4 直向 */
+            margin: 0; 
+        }
+
+        @media print {
+            html, body {
+                width: 210mm !important;
+                height: 297mm !important; /* A4 總高度 */
+                margin: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+            
+            #app, .app-container, .print-wrapper {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* 將證明書精準釘在 A4 紙的上半部 (剛好是 148.5mm) */
+            .print-area {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 210mm !important;
+                height: 148.5mm !important; 
+                margin: 0 !important;
+                box-shadow: none !important;
+                background-color: white !important;
+                page-break-after: avoid !important;
+            }
         }
     </style>
 </head>
@@ -98,7 +79,7 @@
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <span class="text-xs bg-green-400 text-green-900 font-bold px-2 py-1 rounded-full shadow-inner border border-green-500">v2.3 蘋果修正版</span>
+                    <span class="text-xs bg-blue-800 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-blue-900">v4.0 電腦專用版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
@@ -150,7 +131,6 @@
                     <!-- 國定假日設定區塊 -->
                     <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYY-MM-DD)</label>
-                        <p class="text-xs text-gray-500 mb-2">每行一天。自動將此日期與「前夕」視為假日。</p>
                         <textarea v-model="holidaysText" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
                     </div>
 
@@ -166,35 +146,31 @@
                                 <input type="number" v-model="total" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
                             </div>
                         </div>
-                        <div v-if="!autoCalculate">
-                            <label class="block text-sm font-bold text-gray-700 mb-1">自訂價格描述文字</label>
-                            <input type="text" v-model="manualPriceDesc" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-yellow-50">
-                        </div>
-                        <div v-else class="text-xs text-gray-600 bg-gray-100 p-2 rounded">
-                            包含平日 {{ weekdayNights }} 晚，假日 {{ weekendNights }} 晚。(預設五六日與國假為假日)
-                        </div>
                     </div>
                 </div>
 
-                <!-- 列印按鈕區塊 -->
-                <div class="p-4 border-t border-gray-200 bg-gray-50">
-                    <button @click="printDoc" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                        列印 A5 證明
+                <!-- 電腦版專用列印按鈕 -->
+                <div class="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
+                    <button @click="printDoc" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                        列印停車證明
                     </button>
-                    <!-- 新增手機列印 A4 剪裁提示 -->
-                    <div class="text-xs text-blue-800 mt-4 text-center space-y-1 font-bold">
-                        <p>💡 手機列印破解：請放入 A4 紙，選「直向」</p>
-                        <p class="text-red-600">證明會完美印在上半張！</p>
-                        <p class="text-gray-600">手機去不掉的網址會被強制擠到下半張，</p>
-                        <p class="text-gray-600">印出後對半剪開，丟掉下半張即可！</p>
+                    
+                    <div class="text-[13px] text-gray-700 mt-2 p-3 bg-white border border-gray-300 rounded shadow-sm leading-relaxed">
+                        <p class="font-bold text-blue-800 mb-1">💻 電腦列印設定步驟：</p>
+                        <ol class="list-decimal pl-4 space-y-1">
+                            <li>紙張大小選擇 <strong>「A4」</strong></li>
+                            <li>配置/方向選擇 <strong>「直向」</strong></li>
+                            <li>點開「更多設定」，<strong><span class="text-red-600 underline">取消勾選「頁首和頁尾」</span></strong> (網址就會消失)</li>
+                        </ol>
+                        <p class="mt-2 text-xs text-gray-500">※ 證明會印在 A4 紙的上半部，印出後從中間剪開即為 A5 大小。</p>
                     </div>
                 </div>
             </div>
             
-            <!-- 右側預覽區 (列印時只保留紙張內容) -->
+            <!-- 右側預覽區 -->
             <div class="print-wrapper flex-1 flex justify-center items-center overflow-auto p-8 relative bg-gray-200">
                 
-                <!-- A5 虛擬紙張 -->
+                <!-- 證明書本體 -->
                 <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
                     
                     <!-- Logo / Header 區塊 -->
@@ -202,7 +178,7 @@
                         <div class="flex items-center space-x-3">
                             <div class="relative w-[50px] h-[50px]">
                                 <div class="absolute inset-0 bg-[#e60012] rounded-full scale-90"></div>
-                                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="absolute inset-0 w-full h-full z-10">
                                     <path d="M 25 20 Q 5 50 25 80 Q 15 50 25 20 Z" fill="#ffc000" />
                                     <path d="M 35 55 Q 60 45 80 55 Q 70 70 35 55 Z" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M 80 55 Q 90 40 95 65 Z" fill="none" stroke="black" stroke-width="2"/>
@@ -235,7 +211,6 @@
                     </div>
 
                     <!-- Footer 簽章區塊 -->
-                    <!-- 簽章靠右下角 -->
                     <div class="w-full flex justify-end pr-[25mm] mt-auto">
                         <div class="text-[15pt] text-right font-bold leading-[1.8] tracking-widest">
                             <p>水 沙 連 大 飯 店</p>

@@ -18,14 +18,14 @@
            強制刪除網址與頁首頁尾的最強 CSS 語法
            ========================================== */
         @page {
-            size: A5 landscape; /* 設定為 A5 橫向 */
+            size: A4 portrait; /* 強制設定為 A4 直向，這樣 A5 橫向版面會完美印在 A4 的上半部 */
             margin: 0; /* 邊距設為 0，讓瀏覽器「沒有空間」印出網址與時間 */
         }
 
         @media print {
             html, body {
                 width: 210mm;
-                height: 148.5mm;
+                height: 297mm; /* 設定為 A4 的完整高度 */
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
@@ -37,7 +37,7 @@
             }
             .print-area {
                 width: 210mm !important;
-                height: 148.5mm !important;
+                height: 148.5mm !important; /* A5 的高度 (剛好是 A4 的一半) */
                 margin: 0 !important;
                 padding-top: 15mm !important;
                 padding-bottom: 15mm !important;
@@ -72,8 +72,9 @@
             
             <!-- 左側設定面板 -->
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
-                <div class="p-6 bg-blue-600 text-white shadow-md">
+                <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
+                    <span class="text-xs bg-blue-800 text-blue-100 px-2 py-1 rounded-full shadow-inner border border-blue-700">v2.1 更新版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
@@ -163,6 +164,12 @@
                     <button @click="printDoc" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                         列印 A5 證明
                     </button>
+                    <!-- 新增 A4 列印提示 -->
+                    <div class="text-xs text-blue-700 mt-4 text-center space-y-1 font-bold">
+                        <p>💡 沒有 A5 紙？請直接放入 A4 紙！</p>
+                        <p>列印時紙張請選擇「A4」及「直向」</p>
+                        <p>證明會完美印在 A4 的上半部，印出後對半剪開即可！</p>
+                    </div>
                 </div>
             </div>
             
@@ -353,6 +360,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 

@@ -30,17 +30,19 @@
         }
 
         /* ==========================================
-           電腦專用列印 CSS (完美支援 A4 紙印上半部)
+           v5.0 通用列印 CSS (手機不當機，電腦完美印)
            ========================================== */
         @page { 
-            size: A4 portrait; /* 強制電腦印表機使用 A4 直向 */
+            size: A4 portrait; /* 強制 A4 直向 */
             margin: 0; 
         }
 
         @media print {
+            /* 解除所有高度與溢出限制，防止蘋果手機白畫面 */
             html, body {
                 width: 210mm !important;
-                height: 297mm !important; /* A4 總高度 */
+                height: auto !important; 
+                min-height: 100%;
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
@@ -49,23 +51,23 @@
             }
             .no-print { display: none !important; }
             
+            /* 將外層容器改為區塊，取消置中，讓內容自然貼齊左上角 */
             #app, .app-container, .print-wrapper {
                 display: block !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
 
-            /* 將證明書精準釘在 A4 紙的上半部 (剛好是 148.5mm) */
+            /* 證明書精準設定為 A4 的一半高度 (148.5mm)，自然排在最上方 */
             .print-area {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
+                display: flex !important; /* 保留內部的文字排版 */
                 width: 210mm !important;
                 height: 148.5mm !important; 
                 margin: 0 !important;
                 box-shadow: none !important;
                 background-color: white !important;
                 page-break-after: avoid !important;
+                page-break-inside: avoid !important;
             }
         }
     </style>
@@ -79,7 +81,7 @@
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <span class="text-xs bg-blue-800 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-blue-900">v4.0 電腦專用版</span>
+                    <span class="text-xs bg-purple-600 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-purple-700">v5.0 通用相容版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
@@ -149,20 +151,19 @@
                     </div>
                 </div>
 
-                <!-- 電腦版專用列印按鈕 -->
+                <!-- 通用版列印按鈕 -->
                 <div class="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
                     <button @click="printDoc" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                         列印停車證明
                     </button>
                     
                     <div class="text-[13px] text-gray-700 mt-2 p-3 bg-white border border-gray-300 rounded shadow-sm leading-relaxed">
-                        <p class="font-bold text-blue-800 mb-1">💻 電腦列印設定步驟：</p>
+                        <p class="font-bold text-blue-800 mb-1">💡 列印設定提示：</p>
                         <ol class="list-decimal pl-4 space-y-1">
-                            <li>紙張大小選擇 <strong>「A4」</strong></li>
-                            <li>配置/方向選擇 <strong>「直向」</strong></li>
-                            <li>點開「更多設定」，<strong><span class="text-red-600 underline">取消勾選「頁首和頁尾」</span></strong> (網址就會消失)</li>
+                            <li>紙張請選擇 <strong>「A4」</strong>、<strong>「直向」</strong>。</li>
+                            <li><strong>電腦列印：</strong> 請點開「更多設定」，取消勾選「頁首和頁尾」即可隱藏網址。</li>
+                            <li><strong>手機列印：</strong> 網址會強制印在 A4 最底部，印出後從中間剪開，上半部即為完美 A5。</li>
                         </ol>
-                        <p class="mt-2 text-xs text-gray-500">※ 證明會印在 A4 紙的上半部，印出後從中間剪開即為 A5 大小。</p>
                     </div>
                 </div>
             </div>
@@ -353,5 +354,6 @@
     </script>
 </body>
 </html>
+
 
 

@@ -15,52 +15,64 @@
         body { font-family: 'Noto Sans TC', sans-serif; }
 
         /* ==========================================
-           列印專屬最強防護 CSS (專治手機瀏覽器)
+           列印專屬安全 CSS (專治 iPhone 白畫面與多餘空白頁)
            ========================================== */
         @page {
             size: A4 portrait; /* 強制 A4 直向紙張 */
-            margin: 0 !important;
+            margin: 0;
         }
 
         @media print {
-            /* 1. 強制設定整體畫布為 A4 尺寸，並切掉多餘的產生第二頁空白頁 */
+            /* 1. 破解 iOS 白畫面：取消所有的 overflow:hidden 與 100vh 高度限制 */
             html, body {
-                width: 210mm !important;
-                height: 297mm !important;
+                width: 100% !important;
+                height: auto !important; 
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                overflow: hidden !important; 
+                overflow: visible !important;
             }
 
-            /* 2. 隱藏不必要的左側控制面板 */
+            /* 2. 隱藏左側面板 */
             .no-print {
                 display: none !important;
             }
 
-            /* 3. 破除手機預設的彈性置中排版，強制靠左上角 */
-            #app, .app-container, .print-wrapper {
+            /* 3. 破除 flex 彈性置中，讓內容自然靠左上角貼齊，防止產生第二頁 */
+            #app, .app-container {
                 display: block !important;
+                height: auto !important;
+                overflow: visible !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                height: auto !important;
             }
 
-            /* 4. 將證明書「死死釘在 A4 的上半部」 (A5 的高度為 148.5mm) */
-            .print-area {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 210mm !important;
-                height: 148.5mm !important; 
-                max-height: 148.5mm !important;
+            .print-wrapper {
+                display: block !important;
+                height: auto !important;
                 margin: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+            }
+
+            /* 4. 證明書實體：強制高度為 A4 的一半 (148.5mm) */
+            .print-area {
+                display: flex !important; /* 保留內部的文字排版 */
+                width: 100% !important;
+                height: 148.5mm !important; /* 剛好是一張 A5 的高度 */
+                margin: 0 !important;
+                padding-top: 15mm !important;
+                padding-bottom: 15mm !important;
                 box-shadow: none !important;
                 background-color: white !important;
+                /* 防止被切到下一頁 */
                 page-break-after: avoid !important;
                 page-break-inside: avoid !important;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
         }
 
@@ -86,7 +98,7 @@
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <span class="text-xs bg-yellow-400 text-yellow-900 font-bold px-2 py-1 rounded-full shadow-inner border border-yellow-500">v2.2 手機完美列印版</span>
+                    <span class="text-xs bg-green-400 text-green-900 font-bold px-2 py-1 rounded-full shadow-inner border border-green-500">v2.3 蘋果修正版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">

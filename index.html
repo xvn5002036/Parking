@@ -203,7 +203,7 @@
                         
                         <!-- 內文靠左對齊 -->
                         <div class="text-[15pt] leading-[2.2] w-[130mm] text-left tracking-wide">
-                            <p>茲證明{{ plate || '_____' }}，一台{{ vehicleType }},</p>
+                            <p>茲證明{{ plate ? plate.toUpperCase() : '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
                             <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
                             <p>共計{{ total }}元</p>
@@ -354,6 +354,7 @@
     </script>
 </body>
 </html>
+
 
 
 

@@ -10,59 +10,52 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
     <style>
-        /* 引入繁體中文字體 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap');
         
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; }
 
-        /* -------------------------------------
-           列印專屬設定 (Print Media Query)
-           ------------------------------------- */
-        /* 這一行是消除網址與日期的關鍵！margin: 0 會把瀏覽器預設的頁首頁尾推到紙張外 */
+        /* ==========================================
+           強制刪除網址與頁首頁尾的最強 CSS 語法
+           ========================================== */
         @page {
-            size: 210mm 148mm landscape; /* 強制 A5 橫向 */
-            margin: 0mm !important; 
+            size: A5 landscape; /* 設定為 A5 橫向 */
+            margin: 0; /* 邊距設為 0，讓瀏覽器「沒有空間」印出網址與時間 */
         }
 
         @media print {
-            body, html {
-                margin: 0;
-                padding: 0;
-                background-color: white !important; /* 確保背景全白 */
+            html, body {
+                width: 210mm;
+                height: 148.5mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            /* 隱藏不需要列印的控制面板 */
             .no-print {
                 display: none !important;
             }
-            /* 調整預覽區塊以適應實際列印 */
             .print-area {
                 width: 210mm !important;
-                height: 148mm !important;
-                box-shadow: none !important; /* 去除網頁上的陰影 */
+                height: 148.5mm !important;
                 margin: 0 !important;
+                padding-top: 15mm !important;
+                padding-bottom: 15mm !important;
+                box-shadow: none !important;
                 background-color: white !important;
                 page-break-after: avoid;
                 page-break-before: avoid;
             }
-            #app {
+            #app, .app-container {
                 display: block !important;
-            }
-            .app-container {
-                display: block !important;
-                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
         }
 
-        /* -------------------------------------
-           網頁上的 A5 預覽區塊樣式
-           ------------------------------------- */
         .a5-landscape {
             width: 210mm;
-            height: 148mm;
+            height: 148.5mm;
             background-color: white;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             position: relative;
@@ -83,17 +76,17 @@
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
                 </div>
                 
-                <div class="p-6 flex-1 overflow-y-auto space-y-5">
+                <div class="p-5 flex-1 overflow-y-auto space-y-4">
                     
                     <!-- 車牌與車種設定 -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="col-span-2">
                             <label class="block text-sm font-bold text-gray-700 mb-1">車牌號碼</label>
-                            <input type="text" v-model="plate" placeholder="請輸入車牌" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50 text-lg uppercase">
+                            <input type="text" v-model="plate" placeholder="請輸入車牌" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50 text-lg uppercase">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-sm font-bold text-gray-700 mb-1">車種類型</label>
-                            <select v-model="vehicleType" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
+                            <select v-model="vehicleType" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                                 <option value="小客車">小客車</option>
                                 <option value="遊覽車">遊覽車</option>
                             </select>
@@ -101,82 +94,80 @@
                     </div>
 
                     <!-- 日期設定 -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">開始日期</label>
-                            <input type="date" v-model="startDate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
+                            <input type="date" v-model="startDate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">結束日期</label>
-                            <input type="date" v-model="endDate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
+                            <input type="date" v-model="endDate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                         </div>
                     </div>
 
                     <!-- 價錢設定 -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">平日價格/晚</label>
-                            <input type="number" v-model="weekdayPrice" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
+                            <input type="number" v-model="weekdayPrice" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">假日價格/晚</label>
-                            <input type="number" v-model="weekendPrice" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-gray-50">
+                            <input type="number" v-model="weekendPrice" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                         </div>
                     </div>
 
                     <!-- 自動計算開關 -->
-                    <div class="flex items-center mt-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                        <input type="checkbox" v-model="autoCalculate" id="autoCalc" class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="autoCalc" class="ml-3 block text-sm font-bold text-blue-800">自動計算天數與平假日</label>
+                    <div class="flex items-center mt-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                        <input type="checkbox" v-model="autoCalculate" id="autoCalc" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="autoCalc" class="ml-2 block text-sm font-bold text-blue-800">自動計算天數與平假日</label>
                     </div>
 
                     <!-- 國定假日設定區塊 -->
                     <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYY-MM-DD)</label>
-                        <p class="text-xs text-gray-500 mb-2">每行一天。系統會自動將這些日期與「前一天」視為假日。</p>
-                        <textarea v-model="holidaysText" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border text-sm"></textarea>
+                        <p class="text-xs text-gray-500 mb-2">每行一天。自動將此日期與「前夕」視為假日。</p>
+                        <textarea v-model="holidaysText" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
                     </div>
 
                     <!-- 總計設定 -->
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">總天數 (晚)</label>
-                                <input type="number" v-model="nights" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
+                                <input type="number" v-model="nights" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">總計金額 (元)</label>
-                                <input type="number" v-model="total" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
+                                <input type="number" v-model="total" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
                             </div>
                         </div>
-                        
-                        <!-- 手動模式或補充說明 -->
                         <div v-if="!autoCalculate">
                             <label class="block text-sm font-bold text-gray-700 mb-1">自訂價格描述文字</label>
-                            <input type="text" v-model="manualPriceDesc" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border bg-yellow-50">
+                            <input type="text" v-model="manualPriceDesc" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-yellow-50">
                         </div>
-                        <div v-else class="text-sm text-gray-600 bg-gray-100 p-2 rounded">
-                            計算結果：包含平日 {{ weekdayNights }} 晚，假日 {{ weekendNights }} 晚。
-                            <span class="block text-xs text-gray-500 mt-1">*預設五、六、日與國定假日(含前夕)為假日。</span>
+                        <div v-else class="text-xs text-gray-600 bg-gray-100 p-2 rounded">
+                            包含平日 {{ weekdayNights }} 晚，假日 {{ weekendNights }} 晚。(預設五六日與國假為假日)
                         </div>
                     </div>
                 </div>
 
-                <!-- 列印按鈕區塊 -->
-                <div class="p-6 border-t border-gray-200 bg-gray-50">
-                    <button @click="printDoc" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <!-- ⚠️ 強制刪除網址教學與列印按鈕 -->
+                <div class="p-4 border-t border-red-200 bg-red-50">
+                    <div class="mb-3 text-red-700 text-sm font-bold">
+                        ⚠️ 終極解法：若預覽仍有網址，請在列印畫面：<br>
+                        1. 點開 <span class="bg-red-200 px-1 rounded">更多設定</span><br>
+                        2. 找到 <span class="bg-red-200 px-1 rounded">頁首和頁尾</span><br>
+                        3. <span class="underline text-red-800 text-base">絕對不要勾選它 (取消打勾)！</span>
+                    </div>
+                    <button @click="printDoc" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                         列印 A5 證明
                     </button>
-                    <div class="text-xs text-gray-500 mt-4 text-center space-y-1">
-                        <p class="text-red-500 font-bold">👉 若依然印出網址，請在列印畫面左側將「頁首和頁尾」取消勾選。</p>
-                        <p>👉 列印時請將紙張設定為 <strong>「A5」</strong> 與 <strong>「橫向」</strong></p>
-                    </div>
                 </div>
             </div>
             
             <!-- 右側預覽區 (列印時只保留紙張內容) -->
-            <div class="flex-1 flex justify-center items-center overflow-auto p-8 print:p-0 print:overflow-visible relative">
+            <div class="flex-1 flex justify-center items-center overflow-auto p-8 print:p-0 print:overflow-visible relative bg-gray-200">
                 
                 <!-- A5 虛擬紙張 -->
                 <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
@@ -208,7 +199,8 @@
                     <div class="flex flex-col items-center flex-1 w-full mt-[8mm]">
                         <h1 class="text-[22pt] font-bold tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明</h1>
                         
-                        <div class="text-[15pt] leading-[2.2] w-full text-center tracking-wide">
+                        <!-- 修改這裡：將 w-full text-center 改為特定寬度並 text-left 靠左對齊 -->
+                        <div class="text-[15pt] leading-[2.2] w-[130mm] text-left tracking-wide">
                             <p>茲證明{{ plate || '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
                             <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
@@ -218,10 +210,11 @@
                     </div>
 
                     <!-- Footer 簽章區塊 -->
-                    <div class="w-full flex justify-end pr-[30mm]">
-                        <div class="text-[15pt] text-center font-bold leading-[1.8] tracking-widest">
-                            <p>水沙連大飯店</p>
-                            <p>碼頭精品旅店</p>
+                    <!-- 修改這裡：加入 mt-auto 推至最底部，並將內部文字設為 text-right 靠右對齊，且加上空格 -->
+                    <div class="w-full flex justify-end pr-[25mm] mt-auto">
+                        <div class="text-[15pt] text-right font-bold leading-[1.8] tracking-widest">
+                            <p>水 沙 連 大 飯 店</p>
+                            <p>碼 頭 精 品 旅 店</p>
                         </div>
                     </div>
 
@@ -237,7 +230,6 @@
 
         createApp({
             data() {
-                // 自動取得今天與明天的日期字串
                 const today = new Date();
                 const tomorrow = new Date(today);
                 tomorrow.setDate(tomorrow.getDate() + 1);
@@ -247,10 +239,10 @@
                 };
 
                 return {
-                    plate: '', // 預設清空車牌
+                    plate: '',
                     vehicleType: '小客車',
-                    startDate: toDateString(today),   // 預設為今天
-                    endDate: toDateString(tomorrow),  // 預設為明天
+                    startDate: toDateString(today),
+                    endDate: toDateString(tomorrow),
                     weekdayPrice: 200,
                     weekendPrice: 250,
                     nights: 1,
@@ -259,25 +251,18 @@
                     total: 250,
                     autoCalculate: true,
                     manualPriceDesc: '假日250元/晚',
-                    // 預設給幾個 2026 年的國定假日範例
                     holidaysText: '2026-01-01\n2026-02-28\n2026-04-04\n2026-06-19\n2026-09-25\n2026-10-10'
                 }
             },
             computed: {
                 priceDescription() {
                     if (!this.autoCalculate) return this.manualPriceDesc;
-
                     if (this.weekdayPrice === this.weekendPrice) {
                         return `${this.weekdayPrice}元/晚`;
                     }
-
                     let desc = [];
-                    if (this.weekdayNights > 0) {
-                        desc.push(`平日${this.weekdayPrice}元/晚` + (this.weekendNights > 0 ? `(${this.weekdayNights}晚)` : ''));
-                    }
-                    if (this.weekendNights > 0) {
-                        desc.push(`假日${this.weekendPrice}元/晚` + (this.weekdayNights > 0 ? `(${this.weekendNights}晚)` : ''));
-                    }
+                    if (this.weekdayNights > 0) desc.push(`平日${this.weekdayPrice}元/晚` + (this.weekendNights > 0 ? `(${this.weekdayNights}晚)` : ''));
+                    if (this.weekendNights > 0) desc.push(`假日${this.weekendPrice}元/晚` + (this.weekdayNights > 0 ? `(${this.weekendNights}晚)` : ''));
                     return desc.join(', ');
                 }
             },
@@ -311,19 +296,16 @@
                             let wDays = 0;
                             let wEnds = 0;
                             let currDate = new Date(start);
-                            
                             let holidayArray = this.holidaysText.split('\n').map(s => s.trim()).filter(s => s);
 
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
-                                
                                 let todayStr = currDate.getFullYear() + '-' + String(currDate.getMonth() + 1).padStart(2, '0') + '-' + String(currDate.getDate()).padStart(2, '0');
                                 
                                 let tmrDate = new Date(currDate);
                                 tmrDate.setDate(tmrDate.getDate() + 1);
                                 let tmrStr = tmrDate.getFullYear() + '-' + String(tmrDate.getMonth() + 1).padStart(2, '0') + '-' + String(tmrDate.getDate()).padStart(2, '0');
 
-                                // 五(5)、六(6)、日(0) 或是 今天/明天在國定假日名單內 -> 算假日
                                 if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr) || holidayArray.includes(tmrStr)) {
                                     wEnds++;
                                 } else {
@@ -371,5 +353,6 @@
     </script>
 </body>
 </html>
+
 
 

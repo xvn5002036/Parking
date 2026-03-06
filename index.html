@@ -13,6 +13,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Vue 3 用於資料雙向綁定與即時計算 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- 🌟 引入 Flatpickr 日曆套件與樣式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
 
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; }
@@ -29,8 +34,29 @@
             flex-shrink: 0;
         }
 
+        /* 🌟 客製化日曆的顏色 (仿 Agoda 藍色風格) */
+        .flatpickr-calendar {
+            font-family: 'Noto Sans TC', sans-serif;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
+        .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus,
+        .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover,
+        .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay,
+        .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+            background: #2563eb !important; /* 深藍色圓圈 */
+            border-color: #2563eb !important;
+            color: white !important;
+        }
+        .flatpickr-day.inRange, .flatpickr-day.inRange.prevMonthDay, .flatpickr-day.inRange.nextMonthDay {
+            background: #dbeafe !important; /* 淺藍色中間範圍 */
+            border-color: #dbeafe !important;
+            box-shadow: -5px 0 0 #dbeafe, 5px 0 0 #dbeafe !important;
+        }
+
         /* ==========================================
-           v5.0 通用列印 CSS (手機不當機，電腦完美印)
+           v6.0 通用列印 CSS (手機不當機，電腦完美印)
            ========================================== */
         @page { 
             size: A4 portrait; /* 強制 A4 直向 */
@@ -49,7 +75,7 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .no-print { display: none !important; }
+            .no-print, .flatpickr-calendar { display: none !important; } /* 列印時隱藏日曆與控制面板 */
             
             /* 將外層容器改為區塊，取消置中，讓內容自然貼齊左上角 */
             #app, .app-container, .print-wrapper {
@@ -81,7 +107,7 @@
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <span class="text-xs bg-purple-600 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-purple-700">v5.0 通用相容版</span>
+                    <span class="text-xs bg-orange-500 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-orange-600">v6.0 仿Agoda日曆版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
@@ -100,16 +126,24 @@
                         </div>
                     </div>
 
-                    <!-- 日期設定 -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">開始日期</label>
-                            <input type="date" v-model="startDate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
+                    <!-- 🌟 仿 Agoda 區間日曆選擇器 -->
+                    <div class="col-span-2 relative">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">入住期間 (點擊選擇區間)</label>
+                        <div id="dateRangeWrapper" class="flex items-center rounded-md border border-gray-300 bg-white p-2.5 cursor-pointer hover:border-blue-500 hover:ring-1 hover:ring-blue-500 transition shadow-sm">
+                            <div class="flex-1 text-center">
+                                <div class="text-xs text-gray-500 mb-0.5">入住日期</div>
+                                <div class="font-bold text-blue-700 text-lg">{{ formatShortDate(startDate) }}</div>
+                            </div>
+                            <div class="px-2 text-gray-400">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </div>
+                            <div class="flex-1 text-center">
+                                <div class="text-xs text-gray-500 mb-0.5">退房日期</div>
+                                <div class="font-bold text-blue-700 text-lg">{{ formatShortDate(endDate) }}</div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">結束日期</label>
-                            <input type="date" v-model="endDate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
-                        </div>
+                        <!-- 隱藏的實體 input 給 Flatpickr 綁定用 -->
+                        <input type="text" id="dateRangePicker" class="hidden">
                     </div>
 
                     <!-- 價錢設定 -->
@@ -204,6 +238,7 @@
                         
                         <!-- 內文靠左對齊 -->
                         <div class="text-[15pt] leading-[2.2] w-[130mm] text-left tracking-wide">
+                            <!-- 🌟 車牌強制大寫 -->
                             <p>茲證明{{ plate ? plate.toUpperCase() : '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
                             <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
@@ -279,13 +314,29 @@
                     }
                     if (this.autoCalculate) this.calculateAll();
                 },
-                startDate() { if (this.autoCalculate) this.calculateAll(); },
-                endDate() { if (this.autoCalculate) this.calculateAll(); },
                 weekdayPrice() { if (this.autoCalculate) this.calculateAll(); },
                 weekendPrice() { if (this.autoCalculate) this.calculateAll(); },
                 holidaysText() { if (this.autoCalculate) this.calculateAll(); }
             },
             methods: {
+                // 產生供左側按鈕顯示用的短日期 (例如：3月6日)
+                formatShortDate(dateStr) {
+                    if (!dateStr) return '--/--';
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        return `${parseInt(parts[1])}月${parseInt(parts[2])}日`;
+                    }
+                    return dateStr;
+                },
+                // 產生供右側證明書顯示用的長日期 (例如：2026年3月6日)
+                formatDate(dateStr) {
+                    if (!dateStr) return '____年__月__日';
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
+                    }
+                    return dateStr;
+                },
                 calculateAll() {
                     if (this.startDate && this.endDate) {
                         const start = new Date(this.startDate);
@@ -341,27 +392,41 @@
                         }
                     }
                 },
-                formatDate(dateStr) {
-                    if (!dateStr) return '____年__月__日';
-                    const parts = dateStr.split('-');
-                    if (parts.length === 3) {
-                        return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
-                    }
-                    return dateStr;
-                },
                 printDoc() {
                     window.print();
                 }
             },
             mounted() {
+                // 🌟 初始化 Flatpickr 日曆 (設定為區間模式)
+                const fp = flatpickr("#dateRangePicker", {
+                    mode: "range",
+                    locale: "zh_tw",      // 載入繁體中文
+                    dateFormat: "Y-m-d",
+                    defaultDate: [this.startDate, this.endDate],
+                    onChange: (selectedDates) => {
+                        // 必須選擇了兩個日期(起與迄)才觸發計算
+                        if (selectedDates.length === 2) {
+                            // 轉回本地時間的 YYYY-MM-DD
+                            const toLocalStr = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                            this.startDate = toLocalStr(selectedDates[0]);
+                            this.endDate = toLocalStr(selectedDates[1]);
+                            
+                            // 更新後立即執行計算
+                            if (this.autoCalculate) this.calculateAll();
+                        }
+                    }
+                });
+
+                // 點擊我們自訂的按鈕時，打開日曆
+                document.getElementById('dateRangeWrapper').addEventListener('click', () => {
+                    fp.open();
+                });
+
                 this.calculateAll();
             }
         }).mount('#app');
     </script>
 </body>
 </html>
-
-
-
 
 

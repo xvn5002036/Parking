@@ -132,7 +132,8 @@
 
                     <!-- 國定假日設定區塊 -->
                     <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYY-MM-DD)</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYYMMDD)</label>
+                        <p class="text-xs text-gray-500 mb-2">每行一天(直接輸入數字，如 20260404)。自動將此日期與「前夕」視為假日。</p>
                         <textarea v-model="holidaysText" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
                     </div>
 
@@ -252,7 +253,7 @@
                     total: 250,
                     autoCalculate: true,
                     manualPriceDesc: '假日250元/晚',
-                    holidaysText: '2026-01-01\n2026-02-28\n2026-04-04\n2026-06-19\n2026-09-25\n2026-10-10'
+                    holidaysText: '20260101\n20260228\n20260404\n20260619\n20260925\n20261010'
                 }
             },
             computed: {
@@ -297,15 +298,20 @@
                             let wDays = 0;
                             let wEnds = 0;
                             let currDate = new Date(start);
-                            let holidayArray = this.holidaysText.split('\n').map(s => s.trim()).filter(s => s);
+                            
+                            // 自動清除輸入框內的符號或空白，只抓取 8 碼數字
+                            let holidayArray = this.holidaysText.split('\n').map(s => s.replace(/[-\s]/g, '')).filter(s => s.length === 8);
 
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
-                                let todayStr = currDate.getFullYear() + '-' + String(currDate.getMonth() + 1).padStart(2, '0') + '-' + String(currDate.getDate()).padStart(2, '0');
+                                
+                                // 轉成 YYYYMMDD 的無符號格式
+                                let todayStr = currDate.getFullYear() + String(currDate.getMonth() + 1).padStart(2, '0') + String(currDate.getDate()).padStart(2, '0');
                                 
                                 let tmrDate = new Date(currDate);
                                 tmrDate.setDate(tmrDate.getDate() + 1);
-                                let tmrStr = tmrDate.getFullYear() + '-' + String(tmrDate.getMonth() + 1).padStart(2, '0') + '-' + String(tmrDate.getDate()).padStart(2, '0');
+                                // 轉成 YYYYMMDD 的無符號格式
+                                let tmrStr = tmrDate.getFullYear() + String(tmrDate.getMonth() + 1).padStart(2, '0') + String(tmrDate.getDate()).padStart(2, '0');
 
                                 if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr) || holidayArray.includes(tmrStr)) {
                                     wEnds++;
@@ -354,6 +360,7 @@
     </script>
 </body>
 </html>
+
 
 
 

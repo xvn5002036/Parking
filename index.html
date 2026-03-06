@@ -56,25 +56,26 @@
         }
 
         /* ==========================================
-           v6.0 通用列印 CSS (手機不當機，電腦完美印)
+           v8.0 強制消除網址的列印 CSS
            ========================================== */
         @page { 
             size: A4 portrait; /* 強制 A4 直向 */
-            margin: 0; 
+            /* 這是消滅網址的最強指令：把邊界設為0，讓網址無處可印 */
+            margin: 0mm !important; 
         }
 
         @media print {
             /* 解除所有高度與溢出限制，防止蘋果手機白畫面 */
             html, body {
                 width: 210mm !important;
-                height: auto !important; 
-                min-height: 100%;
+                height: 297mm !important; 
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
+            
             .no-print, .flatpickr-calendar { display: none !important; } /* 列印時隱藏日曆與控制面板 */
             
             /* 將外層容器改為區塊，取消置中，讓內容自然貼齊左上角 */
@@ -90,9 +91,14 @@
                 width: 210mm !important;
                 height: 148.5mm !important; 
                 margin: 0 !important;
+                /* 因為 @page margin 設為 0，所以我們用 padding 把內容往內推，避免印到邊緣 */
+                padding-top: 15mm !important;
+                padding-bottom: 15mm !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
                 box-shadow: none !important;
                 background-color: white !important;
-                page-break-after: avoid !important;
+                page-break-after: always !important; /* 強制分頁，避免多餘內容 */
                 page-break-inside: avoid !important;
             }
         }
@@ -107,7 +113,7 @@
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <span class="text-xs bg-orange-500 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-orange-600">v6.0 仿Agoda日曆版</span>
+                    <span class="text-xs bg-red-600 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-red-700">v8.0 直接列印版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
@@ -193,12 +199,12 @@
                     </button>
                     
                     <div class="text-[13px] text-gray-700 mt-2 p-3 bg-white border border-gray-300 rounded shadow-sm leading-relaxed">
-                        <p class="font-bold text-blue-800 mb-1">💡 列印設定提示：</p>
-                        <ol class="list-decimal pl-4 space-y-1">
-                            <li>紙張請選擇 <strong>「A4」</strong>、<strong>「直向」</strong>。</li>
-                            <li><strong>電腦列印：</strong> 請點開「更多設定」，取消勾選「頁首和頁尾」即可隱藏網址。</li>
-                            <li><strong>手機列印：</strong> 網址會強制印在 A4 最底部，印出後從中間剪開，上半部即為完美 A5。</li>
-                        </ol>
+                        <p class="font-bold text-red-600 mb-1">⚠️ 去除網址終極指南：</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li>程式已下達最高層級的隱藏指令。</li>
+                            <li><strong>如果用電腦印：</strong> 點開更多設定，確保<span class="text-red-600 underline font-bold">「頁首和頁尾」沒有打勾</span>。</li>
+                            <li><strong>如果用手機印：</strong> 若手機仍執意印出網址，印完後直接把下半張裁掉丟棄即可，絕不影響上半部的 A5 證明。</li>
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>停車證明產生器</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- 加入 900 特粗體字重 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
     <!-- 引入 Tailwind CSS 用於快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Vue 3 用於資料雙向綁定與即時計算 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    
+
     <!-- 🌟 引入 Flatpickr 日曆套件與樣式 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
 
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
 
         /* 一般網頁預覽樣式 */
         .a5-landscape {
             width: 210mm;
             height: 148.5mm;
             background-color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             position: relative;
             box-sizing: border-box;
             overflow: hidden;
@@ -38,20 +43,36 @@
         /* 🌟 客製化日曆的顏色 (仿 Agoda 藍色風格) */
         .flatpickr-calendar {
             font-family: 'Noto Sans TC', sans-serif;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
             border: none !important;
         }
-        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
-        .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus,
-        .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover,
-        .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay,
-        .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
-            background: #2563eb !important; /* 深藍色圓圈 */
+
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange,
+        .flatpickr-day.selected:focus,
+        .flatpickr-day.startRange:focus,
+        .flatpickr-day.endRange:focus,
+        .flatpickr-day.selected:hover,
+        .flatpickr-day.startRange:hover,
+        .flatpickr-day.endRange:hover,
+        .flatpickr-day.selected.prevMonthDay,
+        .flatpickr-day.startRange.prevMonthDay,
+        .flatpickr-day.endRange.prevMonthDay,
+        .flatpickr-day.selected.nextMonthDay,
+        .flatpickr-day.startRange.nextMonthDay,
+        .flatpickr-day.endRange.nextMonthDay {
+            background: #2563eb !important;
+            /* 深藍色圓圈 */
             border-color: #2563eb !important;
             color: white !important;
         }
-        .flatpickr-day.inRange, .flatpickr-day.inRange.prevMonthDay, .flatpickr-day.inRange.nextMonthDay {
-            background: #dbeafe !important; /* 淺藍色中間範圍 */
+
+        .flatpickr-day.inRange,
+        .flatpickr-day.inRange.prevMonthDay,
+        .flatpickr-day.inRange.nextMonthDay {
+            background: #dbeafe !important;
+            /* 淺藍色中間範圍 */
             border-color: #dbeafe !important;
             box-shadow: -5px 0 0 #dbeafe, 5px 0 0 #dbeafe !important;
         }
@@ -59,16 +80,19 @@
         /* ==========================================
            v6.0 通用列印 CSS (手機不當機，電腦完美印)
            ========================================== */
-        @page { 
-            size: A4 portrait; /* 強制 A4 直向 */
-            margin: 0; 
+        @page {
+            size: A4 portrait;
+            /* 強制 A4 直向 */
+            margin: 0;
         }
 
         @media print {
+
             /* 解除所有高度與溢出限制，防止蘋果手機白畫面 */
-            html, body {
+            html,
+            body {
                 width: 210mm !important;
-                height: auto !important; 
+                height: auto !important;
                 min-height: 100%;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -76,10 +100,18 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .no-print, .flatpickr-calendar { display: none !important; } /* 列印時隱藏日曆與控制面板 */
-            
+
+            .no-print,
+            .flatpickr-calendar {
+                display: none !important;
+            }
+
+            /* 列印時隱藏日曆與控制面板 */
+
             /* 將外層容器改為區塊，取消置中，讓內容自然貼齊左上角 */
-            #app, .app-container, .print-wrapper {
+            #app,
+            .app-container,
+            .print-wrapper {
                 display: block !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -87,9 +119,10 @@
 
             /* 證明書精準設定為 A4 的一半高度 (148.5mm)，自然排在最上方 */
             .print-area {
-                display: flex !important; /* 保留內部的文字排版 */
+                display: flex !important;
+                /* 保留內部的文字排版 */
                 width: 210mm !important;
-                height: 148.5mm !important; 
+                height: 148.5mm !important;
                 margin: 0 !important;
                 box-shadow: none !important;
                 background-color: white !important;
@@ -99,27 +132,31 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-200 text-gray-800 h-screen overflow-hidden">
 
     <div id="app" class="h-full">
         <div class="app-container flex flex-col md:flex-row h-full">
-            
+
             <!-- 左側設定面板 -->
-            <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
+            <div
+                class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
                 <div class="p-6 bg-blue-600 text-white shadow-md">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
                 </div>
-                
+
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
                     <!-- 車牌與車種設定 -->
                     <div class="grid grid-cols-2 gap-3">
                         <div class="col-span-2">
                             <label class="block text-sm font-bold text-gray-700 mb-1">車牌號碼</label>
-                            <input type="text" v-model="plate" placeholder="請輸入車牌" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50 text-lg uppercase">
+                            <input type="text" v-model="plate" placeholder="請輸入車牌"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50 text-lg uppercase">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-sm font-bold text-gray-700 mb-1">車種類型</label>
-                            <select v-model="vehicleType" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
+                            <select v-model="vehicleType"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                                 <option value="小客車">小客車</option>
                                 <option value="遊覽車">遊覽車</option>
                             </select>
@@ -129,13 +166,18 @@
                     <!-- 🌟 仿 Agoda 區間日曆選擇器 -->
                     <div class="col-span-2 relative">
                         <label class="block text-sm font-bold text-gray-700 mb-1">入住期間 (點擊選擇區間)</label>
-                        <div id="dateRangeWrapper" class="flex items-center rounded-md border border-gray-300 bg-white p-2.5 cursor-pointer hover:border-blue-500 hover:ring-1 hover:ring-blue-500 transition shadow-sm">
+                        <div id="dateRangeWrapper"
+                            class="flex items-center rounded-md border border-gray-300 bg-white p-2.5 cursor-pointer hover:border-blue-500 hover:ring-1 hover:ring-blue-500 transition shadow-sm">
                             <div class="flex-1 text-center">
                                 <div class="text-xs text-gray-500 mb-0.5">入住日期</div>
                                 <div class="font-bold text-blue-700 text-lg">{{ formatShortDate(startDate) }}</div>
                             </div>
                             <div class="px-2 text-gray-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
                             </div>
                             <div class="flex-1 text-center">
                                 <div class="text-xs text-gray-500 mb-0.5">退房日期</div>
@@ -150,17 +192,20 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">平日價格/晚</label>
-                            <input type="number" v-model="weekdayPrice" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
+                            <input type="number" v-model="weekdayPrice"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">假日價格/晚</label>
-                            <input type="number" v-model="weekendPrice" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
+                            <input type="number" v-model="weekendPrice"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50">
                         </div>
                     </div>
 
                     <!-- 自動計算開關 -->
                     <div class="flex items-center mt-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
-                        <input type="checkbox" v-model="autoCalculate" id="autoCalc" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <input type="checkbox" v-model="autoCalculate" id="autoCalc"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <label for="autoCalc" class="ml-2 block text-sm font-bold text-blue-800">自動計算天數與平假日</label>
                     </div>
 
@@ -168,7 +213,8 @@
                     <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYYMMDD)</label>
                         <p class="text-xs text-gray-500 mb-2">每行一天(直接輸入數字，如 20260404)。自動將此日期與「前夕」視為假日。</p>
-                        <textarea v-model="holidaysText" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
+                        <textarea v-model="holidaysText" rows="2"
+                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
                     </div>
 
                     <!-- 總計設定 -->
@@ -176,11 +222,13 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">總天數 (晚)</label>
-                                <input type="number" v-model="nights" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
+                                <input type="number" v-model="nights" :disabled="autoCalculate"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">總計金額 (元)</label>
-                                <input type="number" v-model="total" :disabled="autoCalculate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
+                                <input type="number" v-model="total" :disabled="autoCalculate"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
                             </div>
                         </div>
                     </div>
@@ -188,49 +236,58 @@
 
                 <!-- 通用版列印按鈕 -->
                 <div class="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
-                    <button @click="printDoc" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                    <button @click="printDoc"
+                        class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                         列印停車證明
                     </button>
-                    
-                    <div class="text-[13px] text-gray-700 mt-2 p-3 bg-white border border-gray-300 rounded shadow-sm leading-relaxed">
+
+                    <div
+                        class="text-[13px] text-gray-700 mt-2 p-3 bg-white border border-gray-300 rounded shadow-sm leading-relaxed">
                         <p class="font-bold text-red-600 mb-1">⚠️ 去除網址終極指南：</p>
                         <ul class="list-disc pl-4 space-y-1">
                             <li>程式已下達最高層級的隱藏指令。</li>
-                            <li><strong>如果用電腦印：</strong> 點開更多設定，確保<span class="text-red-600 underline font-bold">「頁首和頁尾」沒有打勾</span>。</li>
+                            <li><strong>如果用電腦印：</strong> 點開更多設定，確保<span
+                                    class="text-red-600 underline font-bold">「頁首和頁尾」沒有打勾</span>。</li>
                             <li><strong>如果用手機印：</strong> 若手機仍執意印出網址，印完後直接把下半張裁掉丟棄即可，絕不影響上半部的 A5 證明。</li>
                         </ul>
                     </div>
-                    
+
                     <!-- 🌟 專屬版權宣告 (僅在網頁顯示，列印時自動隱藏) -->
-                    <div class="pt-2 mt-2 border-t border-gray-200 text-center text-xs text-gray-400 font-bold tracking-widest">
+                    <div
+                        class="pt-2 mt-2 border-t border-gray-200 text-center text-xs text-gray-400 font-bold tracking-widest">
                         版權所有 © 由李汪晏製作
                     </div>
                 </div>
             </div>
-            
+
             <!-- 右側預覽區 -->
-            <div class="print-wrapper flex-1 flex flex-col justify-start items-center overflow-auto p-8 relative bg-gray-200 space-y-6 print:space-y-0 print:p-0 print:block">
-                
-                <!-- 證明書本體 (透過 v-for 產生兩張，剛好填滿一張 A4，不需手動設定每頁2張) -->
-                <div v-for="i in 2" :key="i" class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm] print:m-0">
-                    
+            <div class="print-wrapper flex-1 flex justify-center items-center overflow-auto p-8 relative bg-gray-200">
+
+                <!-- 證明書本體 -->
+                <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
+
                     <!-- Logo / Header 區塊 -->
                     <div class="w-full pl-[20mm]">
                         <div class="flex items-center space-x-3">
                             <div class="relative w-[50px] h-[50px]">
                                 <div class="absolute inset-0 bg-[#e60012] rounded-full scale-90"></div>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="absolute inset-0 w-full h-full z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+                                    class="absolute inset-0 w-full h-full z-10">
                                     <path d="M 25 20 Q 5 50 25 80 Q 15 50 25 20 Z" fill="#ffc000" />
-                                    <path d="M 35 55 Q 60 45 80 55 Q 70 70 35 55 Z" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M 80 55 Q 90 40 95 65 Z" fill="none" stroke="black" stroke-width="2"/>
+                                    <path d="M 35 55 Q 60 45 80 55 Q 70 70 35 55 Z" fill="none" stroke="black"
+                                        stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M 80 55 Q 90 40 95 65 Z" fill="none" stroke="black" stroke-width="2" />
                                 </svg>
                             </div>
                             <div class="flex flex-col">
-                                <div class="text-[18pt] font-bold text-[#1e3a8a] tracking-widest leading-none flex items-baseline">
+                                <div
+                                    class="text-[18pt] font-bold text-[#1e3a8a] tracking-widest leading-none flex items-baseline">
                                     碼頭休閒大飯店
-                                    <span class="text-[10pt] text-gray-500 font-normal ml-3 tracking-normal">台灣 日月潭</span>
+                                    <span class="text-[10pt] text-gray-500 font-normal ml-3 tracking-normal">台灣
+                                        日月潭</span>
                                 </div>
-                                <div class="text-[13pt] text-gray-400 font-serif tracking-[0.1em] mt-[4px] leading-none">
+                                <div
+                                    class="text-[13pt] text-gray-400 font-serif tracking-[0.1em] mt-[4px] leading-none">
                                     HARBOR RESORT HOTEL
                                 </div>
                             </div>
@@ -241,9 +298,9 @@
                     <div class="flex flex-col items-center flex-1 w-full mt-[8mm]">
                         <!-- 標題加粗並設定純黑 -->
                         <h1 class="text-[22pt] font-extrabold text-black tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明</h1>
-                        
-                        <!-- 內文靠左對齊，設定為 15pt、強制加粗(font-bold) 與 純黑(text-black) -->
-                        <div class="text-[15pt] font-bold text-black leading-[2.2] w-[130mm] text-left tracking-wide">
+
+                        <!-- 內文靠左對齊，設定為 18pt、強制加粗(font-bold) 與 純黑(text-black) -->
+                        <div class="text-[18pt] font-bold text-black leading-[2.2] w-[130mm] text-left tracking-wide">
                             <!-- 🌟 車牌強制大寫 -->
                             <p>茲證明{{ plate ? plate.toUpperCase() : '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
@@ -264,7 +321,7 @@
 
                 </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -277,7 +334,7 @@
                 const today = new Date();
                 const tomorrow = new Date(today);
                 tomorrow.setDate(tomorrow.getDate() + 1);
-                
+
                 const toDateString = (date) => {
                     return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
                 };
@@ -350,22 +407,22 @@
                         const end = new Date(this.endDate);
                         const diffTime = end - start;
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        
+
                         if (diffDays > 0) {
                             this.nights = diffDays;
                             let wDays = 0;
                             let wEnds = 0;
                             let currDate = new Date(start);
-                            
+
                             // 自動清除輸入框內的符號或空白，只抓取 8 碼數字
                             let holidayArray = this.holidaysText.split('\n').map(s => s.replace(/[-\s]/g, '')).filter(s => s.length === 8);
 
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
-                                
+
                                 // 轉成 YYYYMMDD 的無符號格式
                                 let todayStr = currDate.getFullYear() + String(currDate.getMonth() + 1).padStart(2, '0') + String(currDate.getDate()).padStart(2, '0');
-                                
+
                                 let tmrDate = new Date(currDate);
                                 tmrDate.setDate(tmrDate.getDate() + 1);
                                 // 轉成 YYYYMMDD 的無符號格式
@@ -382,7 +439,7 @@
                             this.weekdayNights = wDays;
                             this.weekendNights = wEnds;
                             this.total = (wDays * this.weekdayPrice) + (wEnds * this.weekendPrice);
-                            
+
                             if (this.weekdayPrice === this.weekendPrice) {
                                 this.manualPriceDesc = `${this.weekdayPrice}元/晚`;
                             } else {
@@ -417,7 +474,7 @@
                             const toLocalStr = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                             this.startDate = toLocalStr(selectedDates[0]);
                             this.endDate = toLocalStr(selectedDates[1]);
-                            
+
                             // 更新後立即執行計算
                             if (this.autoCalculate) this.calculateAll();
                         }
@@ -434,9 +491,5 @@
         }).mount('#app');
     </script>
 </body>
+
 </html>
-
-
-
-
-

@@ -209,10 +209,10 @@
             </div>
             
             <!-- 右側預覽區 -->
-            <div class="print-wrapper flex-1 flex justify-center items-center overflow-auto p-8 relative bg-gray-200">
+            <div class="print-wrapper flex-1 flex flex-col justify-start items-center overflow-auto p-8 relative bg-gray-200 space-y-6 print:space-y-0 print:p-0 print:block">
                 
-                <!-- 證明書本體 -->
-                <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
+                <!-- 證明書本體 (透過 v-for 產生兩張，剛好填滿一張 A4，不需手動設定每頁2張) -->
+                <div v-for="i in 2" :key="i" class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm] print:m-0">
                     
                     <!-- Logo / Header 區塊 -->
                     <div class="w-full pl-[20mm]">

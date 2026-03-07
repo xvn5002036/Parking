@@ -7,7 +7,8 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <!-- 引入了包含粗體與特粗體的字型 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&display=swap" rel="stylesheet">
     
     <!-- 引入 Tailwind CSS 用於快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,57 +43,56 @@
         }
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
         .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus,
-        .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover,
-        .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay,
-        .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
-            background: #2563eb !important; /* 深藍色圓圈 */
+        .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover {
+            background: #2563eb !important;
             border-color: #2563eb !important;
             color: white !important;
         }
-        .flatpickr-day.inRange, .flatpickr-day.inRange.prevMonthDay, .flatpickr-day.inRange.nextMonthDay {
-            background: #dbeafe !important; /* 淺藍色中間範圍 */
+        .flatpickr-day.inRange {
+            background: #dbeafe !important;
             border-color: #dbeafe !important;
             box-shadow: -5px 0 0 #dbeafe, 5px 0 0 #dbeafe !important;
         }
 
         /* ==========================================
-           v6.0 通用列印 CSS (手機不當機，電腦完美印)
+           強制消除網址的列印 CSS
            ========================================== */
         @page { 
             size: A4 portrait; /* 強制 A4 直向 */
-            margin: 0; 
+            margin: 0mm !important; /* 強制消滅網址 */
         }
 
         @media print {
-            /* 解除所有高度與溢出限制，防止蘋果手機白畫面 */
             html, body {
                 width: 210mm !important;
-                height: auto !important; 
-                min-height: 100%;
+                height: 297mm !important; 
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .no-print, .flatpickr-calendar { display: none !important; } /* 列印時隱藏日曆與控制面板 */
             
-            /* 將外層容器改為區塊，取消置中，讓內容自然貼齊左上角 */
+            .no-print, .flatpickr-calendar { display: none !important; }
+            
             #app, .app-container, .print-wrapper {
                 display: block !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
 
-            /* 證明書精準設定為 A4 的一半高度 (148.5mm)，自然排在最上方 */
             .print-area {
-                display: flex !important; /* 保留內部的文字排版 */
+                display: flex !important; 
                 width: 210mm !important;
                 height: 148.5mm !important; 
                 margin: 0 !important;
+                padding-top: 15mm !important;
+                padding-bottom: 15mm !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
                 box-shadow: none !important;
                 background-color: white !important;
-                page-break-after: avoid !important;
+                page-break-after: always !important; 
                 page-break-inside: avoid !important;
             }
         }
@@ -105,9 +105,8 @@
             
             <!-- 左側設定面板 -->
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print h-full shadow-lg z-10">
-                <div class="p-6 bg-blue-600 text-white shadow-md flex justify-between items-center">
+                <div class="p-6 bg-blue-600 text-white shadow-md">
                     <h2 class="text-2xl font-bold tracking-wider">設定停車證明</h2>
-                    <span class="text-xs bg-orange-500 text-white font-bold px-2 py-1 rounded-full shadow-inner border border-orange-600">v6.0 仿Agoda日曆版</span>
                 </div>
                 
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
@@ -142,7 +141,6 @@
                                 <div class="font-bold text-blue-700 text-lg">{{ formatShortDate(endDate) }}</div>
                             </div>
                         </div>
-                        <!-- 隱藏的實體 input 給 Flatpickr 綁定用 -->
                         <input type="text" id="dateRangePicker" class="hidden">
                     </div>
 
@@ -167,7 +165,7 @@
                     <!-- 國定假日設定區塊 -->
                     <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                         <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYYMMDD)</label>
-                        <p class="text-xs text-gray-500 mb-2">每行一天(直接輸入數字，如 20260404)。自動將此日期與「前夕」視為假日。</p>
+                        <p class="text-xs text-gray-500 mb-2">每行一天(直接輸入數字)。自動將此日期與「前夕」視為假日。</p>
                         <textarea v-model="holidaysText" rows="2" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
                     </div>
 
@@ -186,19 +184,23 @@
                     </div>
                 </div>
 
-                <!-- 通用版列印按鈕 -->
+                <!-- 列印按鈕區塊 -->
                 <div class="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
                     <button @click="printDoc" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
                         列印停車證明
                     </button>
                     
                     <div class="text-[13px] text-gray-700 mt-2 p-3 bg-white border border-gray-300 rounded shadow-sm leading-relaxed">
-                        <p class="font-bold text-blue-800 mb-1">💡 列印設定提示：</p>
-                        <ol class="list-decimal pl-4 space-y-1">
-                            <li>紙張請選擇 <strong>「A4」</strong>、<strong>「直向」</strong>。</li>
-                            <li><strong>電腦列印：</strong> 請點開「更多設定」，取消勾選「頁首和頁尾」即可隱藏網址。</li>
-                            <li><strong>手機列印：</strong> 網址會強制印在 A4 最底部，印出後從中間剪開，上半部即為完美 A5。</li>
-                        </ol>
+                        <p class="font-bold text-red-600 mb-1">⚠️ 去除網址終極指南：</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li><strong>如果用電腦印：</strong> 點開更多設定，確保<span class="text-red-600 underline font-bold">「頁首和頁尾」沒有打勾</span>。</li>
+                            <li><strong>如果用手機印：</strong> 若手機仍執意印出網址，印完後直接把下半張裁掉丟棄即可，絕不影響上半部的 A5 證明。</li>
+                        </ul>
+                    </div>
+
+                    <!-- 專屬版權宣告 -->
+                    <div class="pt-2 mt-2 border-t border-gray-200 text-center text-xs text-gray-400 font-bold tracking-widest">
+                        版權所有 © 由李汪晏製作
                     </div>
                 </div>
             </div>
@@ -233,12 +235,12 @@
                     </div>
 
                     <!-- 證明書內容區塊 -->
-                    <div class="flex flex-col items-center flex-1 w-full mt-[8mm]">
-                        <h1 class="text-[22pt] font-bold tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明</h1>
+                    <div class="flex flex-col items-center flex-1 w-full mt-[5mm]">
+                        <!-- 標題放大加粗 -->
+                        <h1 class="text-[28pt] font-extrabold tracking-[0.8em] ml-[0.8em] mb-[6mm] text-black">停車證明</h1>
                         
-                        <!-- 內文靠左對齊 -->
-                        <div class="text-[15pt] leading-[2.2] w-[130mm] text-left tracking-wide">
-                            <!-- 🌟 車牌強制大寫 -->
+                        <!-- 內文靠左對齊，字體加大到 18pt 並且強制加粗 (font-bold)，顏色為純黑 (text-black) -->
+                        <div class="text-[18pt] font-bold leading-[2.2] w-[140mm] text-left tracking-wide text-black">
                             <p>茲證明{{ plate ? plate.toUpperCase() : '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
                             <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
@@ -249,7 +251,8 @@
 
                     <!-- Footer 簽章區塊 -->
                     <div class="w-full flex justify-end pr-[25mm] mt-auto">
-                        <div class="text-[15pt] text-right font-bold leading-[1.8] tracking-widest">
+                        <!-- 簽章字體同步加大加粗 -->
+                        <div class="text-[18pt] text-right font-extrabold leading-[1.8] tracking-widest text-black">
                             <p>水 沙 連 大 飯 店</p>
                             <p>碼 頭 精 品 旅 店</p>
                         </div>
@@ -319,7 +322,6 @@
                 holidaysText() { if (this.autoCalculate) this.calculateAll(); }
             },
             methods: {
-                // 產生供左側按鈕顯示用的短日期 (例如：3月6日)
                 formatShortDate(dateStr) {
                     if (!dateStr) return '--/--';
                     const parts = dateStr.split('-');
@@ -328,7 +330,6 @@
                     }
                     return dateStr;
                 },
-                // 產生供右側證明書顯示用的長日期 (例如：2026年3月6日)
                 formatDate(dateStr) {
                     if (!dateStr) return '____年__月__日';
                     const parts = dateStr.split('-');
@@ -350,18 +351,14 @@
                             let wEnds = 0;
                             let currDate = new Date(start);
                             
-                            // 自動清除輸入框內的符號或空白，只抓取 8 碼數字
                             let holidayArray = this.holidaysText.split('\n').map(s => s.replace(/[-\s]/g, '')).filter(s => s.length === 8);
 
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
-                                
-                                // 轉成 YYYYMMDD 的無符號格式
                                 let todayStr = currDate.getFullYear() + String(currDate.getMonth() + 1).padStart(2, '0') + String(currDate.getDate()).padStart(2, '0');
                                 
                                 let tmrDate = new Date(currDate);
                                 tmrDate.setDate(tmrDate.getDate() + 1);
-                                // 轉成 YYYYMMDD 的無符號格式
                                 let tmrStr = tmrDate.getFullYear() + String(tmrDate.getMonth() + 1).padStart(2, '0') + String(tmrDate.getDate()).padStart(2, '0');
 
                                 if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr) || holidayArray.includes(tmrStr)) {
@@ -397,27 +394,21 @@
                 }
             },
             mounted() {
-                // 🌟 初始化 Flatpickr 日曆 (設定為區間模式)
                 const fp = flatpickr("#dateRangePicker", {
                     mode: "range",
-                    locale: "zh_tw",      // 載入繁體中文
+                    locale: "zh_tw",
                     dateFormat: "Y-m-d",
                     defaultDate: [this.startDate, this.endDate],
                     onChange: (selectedDates) => {
-                        // 必須選擇了兩個日期(起與迄)才觸發計算
                         if (selectedDates.length === 2) {
-                            // 轉回本地時間的 YYYY-MM-DD
                             const toLocalStr = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                             this.startDate = toLocalStr(selectedDates[0]);
                             this.endDate = toLocalStr(selectedDates[1]);
-                            
-                            // 更新後立即執行計算
                             if (this.autoCalculate) this.calculateAll();
                         }
                     }
                 });
 
-                // 點擊我們自訂的按鈕時，打開日曆
                 document.getElementById('dateRangeWrapper').addEventListener('click', () => {
                     fp.open();
                 });

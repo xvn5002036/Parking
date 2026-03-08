@@ -147,23 +147,31 @@
                     @click="isSettingsOpen = !isSettingsOpen">
                     <h2 class="text-xl md:text-2xl font-bold tracking-wider relative">
                         設定停車證明
+                    </h2>
+
+                    <!-- 手機版才顯示的開關提示 -->
+                    <div class="md:hidden flex items-center space-x-2 bg-blue-700 px-3 py-1 rounded-full text-sm">
+                        <span>{{ isSettingsOpen ? '收合' : '展開' }}</span>
+                        <!-- 上下箭頭圖示 -->
+                        <svg class="w-5 h-5 transform transition-transform duration-300"
+                            :class="{ 'rotate-180': isSettingsOpen }" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+
                         <!-- 只有在收合狀態才給個小紅點提示 -->
-                        <span v-show="!isSettingsOpen" class="absolute -top-1 -right-3 flex h-3 w-3">
+                        <span v-show="!isSettingsOpen" class="absolute top-2 right-2 flex h-3 w-3">
                             <span
                                 class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                         </span>
-                    </h2>
-                    <!-- 上下箭頭圖示 -->
-                    <svg class="w-6 h-6 transform transition-transform duration-300 md:hidden"
-                        :class="{ 'rotate-180': isSettingsOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                    </div>
                 </div>
 
-                <!-- 內部內容區塊 (手機版受 isSettingsOpen 控制，電腦版永遠顯示) -->
-                <div class="flex-1 flex flex-col overflow-hidden transition-all duration-300"
-                    :class="(isSettingsOpen) ? 'block' : 'hidden md:flex'">
+                <!-- 內部內容區塊 (使用 v-show 控制手機版的顯示，但確保 md: 以上永遠 flex) -->
+                <div class="flex-1 overflow-hidden transition-all duration-300"
+                    :class="[isSettingsOpen ? 'flex flex-col' : 'hidden md:flex md:flex-col']">
                     <div class="p-5 flex-1 overflow-y-auto space-y-4">
                         <!-- 車牌與車種設定 -->
                         <div class="grid grid-cols-2 gap-3">

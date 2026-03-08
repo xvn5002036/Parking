@@ -31,7 +31,7 @@
         /* 一般網頁預覽樣式 */
         .a5-landscape {
             width: 210mm;
-            height: 148.5mm;
+            height: 297mm;
             background-color: white;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             position: relative;
@@ -122,7 +122,7 @@
                 display: flex !important;
                 /* 保留內部的文字排版 */
                 width: 210mm !important;
-                height: 148.5mm !important;
+                height: 297mm !important;
                 margin: 0 !important;
                 box-shadow: none !important;
                 background-color: white !important;
@@ -285,31 +285,9 @@
                 <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
 
                     <!-- Logo / Header 區塊 -->
-                    <div class="w-full pl-[20mm]">
-                        <div class="flex items-center space-x-3">
-                            <div class="relative w-[50px] h-[50px]">
-                                <div class="absolute inset-0 bg-[#e60012] rounded-full scale-90"></div>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
-                                    class="absolute inset-0 w-full h-full z-10">
-                                    <path d="M 25 20 Q 5 50 25 80 Q 15 50 25 20 Z" fill="#ffc000" />
-                                    <path d="M 35 55 Q 60 45 80 55 Q 70 70 35 55 Z" fill="none" stroke="black"
-                                        stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M 80 55 Q 90 40 95 65 Z" fill="none" stroke="black" stroke-width="2" />
-                                </svg>
-                            </div>
-                            <div class="flex flex-col">
-                                <div
-                                    class="text-[18pt] font-bold text-[#1e3a8a] tracking-widest leading-none flex items-baseline">
-                                    碼頭休閒大飯店
-                                    <span class="text-[10pt] text-gray-500 font-normal ml-3 tracking-normal">台灣
-                                        日月潭</span>
-                                </div>
-                                <div
-                                    class="text-[13pt] text-gray-400 font-serif tracking-[0.1em] mt-[4px] leading-none">
-                                    HARBOR RESORT HOTEL
-                                </div>
-                            </div>
-                        </div>
+                    <div class="w-full flex justify-center pt-[2mm] pb-[2mm]">
+                        <img src="LOGO.jpg" alt="碼頭休閒大飯店 HARBOR RESORT HOTEL"
+                            class="h-[80mm] object-contain inline-block">
                     </div>
 
                     <!-- 證明書內容區塊 -->

@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>停車證明產生器</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 加入 900 特粗體字重 -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Noto+Serif+TC:wght@400;700;900&display=swap"
-        rel="stylesheet">
-
     <!-- 引入 Tailwind CSS 用於快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Vue 3 用於資料雙向綁定與即時計算 -->
@@ -24,8 +17,9 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
 
     <style>
+        /* 全域設定為微軟正黑體 */
         body {
-            font-family: 'Noto Sans TC', sans-serif;
+            font-family: "Microsoft JhengHei", "微軟正黑體", "Heiti TC", "黑體-繁", sans-serif;
         }
 
         /* 一般網頁預覽樣式 */
@@ -42,7 +36,7 @@
 
         /* 🌟 客製化日曆的顏色 (仿 Agoda 藍色風格) */
         .flatpickr-calendar {
-            font-family: 'Noto Sans TC', sans-serif;
+            font-family: "Microsoft JhengHei", sans-serif;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
             border: none !important;
         }
@@ -63,7 +57,6 @@
         .flatpickr-day.startRange.nextMonthDay,
         .flatpickr-day.endRange.nextMonthDay {
             background: #2563eb !important;
-            /* 深藍色圓圈 */
             border-color: #2563eb !important;
             color: white !important;
         }
@@ -72,23 +65,19 @@
         .flatpickr-day.inRange.prevMonthDay,
         .flatpickr-day.inRange.nextMonthDay {
             background: #dbeafe !important;
-            /* 淺藍色中間範圍 */
             border-color: #dbeafe !important;
             box-shadow: -5px 0 0 #dbeafe, 5px 0 0 #dbeafe !important;
         }
 
         /* ==========================================
-           v6.0 通用列印 CSS (手機不當機，電腦完美印)
+           通用列印 CSS
            ========================================== */
         @page {
             size: A4 portrait;
-            /* 強制 A4 直向 */
             margin: 0;
         }
 
         @media print {
-
-            /* 解除所有高度與溢出限制，防止蘋果手機白畫面 */
             html,
             body {
                 width: 210mm !important;
@@ -99,6 +88,8 @@
                 background-color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                /* 列印時也確保字體 */
+                font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
             }
 
             .no-print,
@@ -106,9 +97,6 @@
                 display: none !important;
             }
 
-            /* 列印時隱藏日曆與控制面板 */
-
-            /* 將外層容器改為區塊，取消置中，讓內容自然貼齊左上角 */
             #app,
             .app-container,
             .print-wrapper {
@@ -117,10 +105,8 @@
                 padding: 0 !important;
             }
 
-            /* 證明書精準設定為 A4 的一半高度 (148.5mm)，自然排在最上方 */
             .print-area {
                 display: flex !important;
-                /* 保留內部的文字排版 */
                 width: 210mm !important;
                 height: 297mm !important;
                 margin: 0 !important;
@@ -142,38 +128,25 @@
             <div class="w-full md:w-[360px] bg-white border-r border-gray-300 flex flex-col no-print shadow-lg z-20 shrink-0 md:h-full transition-all duration-300"
                 :class="isSettingsOpen ? 'h-full' : 'h-auto'">
 
-                <!-- 標題列 (點擊可收合) -->
                 <div class="p-4 md:p-6 bg-blue-600 text-white shadow-md flex justify-between items-center cursor-pointer hover:bg-blue-700 transition"
                     @click="isSettingsOpen = !isSettingsOpen">
                     <h2 class="text-xl md:text-2xl font-bold tracking-wider relative">
                         設定停車證明
                     </h2>
-
-                    <!-- 手機版才顯示的開關提示 -->
                     <div class="md:hidden flex items-center space-x-2 bg-blue-700 px-3 py-1 rounded-full text-sm">
                         <span>{{ isSettingsOpen ? '收合' : '展開' }}</span>
-                        <!-- 上下箭頭圖示 -->
                         <svg class="w-5 h-5 transform transition-transform duration-300"
                             :class="{ 'rotate-180': isSettingsOpen }" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                             </path>
                         </svg>
-
-                        <!-- 只有在收合狀態才給個小紅點提示 -->
-                        <span v-show="!isSettingsOpen" class="absolute top-2 right-2 flex h-3 w-3">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                        </span>
                     </div>
                 </div>
 
-                <!-- 內部內容區塊 (使用 v-show 控制手機版的顯示，但確保 md: 以上永遠 flex) -->
                 <div class="flex-1 overflow-hidden transition-all duration-300"
                     :class="[isSettingsOpen ? 'flex flex-col' : 'hidden md:flex md:flex-col']">
                     <div class="p-5 flex-1 overflow-y-auto space-y-4">
-                        <!-- 車牌與車種設定 -->
                         <div class="grid grid-cols-2 gap-3">
                             <div class="col-span-2">
                                 <label class="block text-sm font-bold text-gray-700 mb-1">車牌號碼</label>
@@ -191,9 +164,8 @@
                             </div>
                         </div>
 
-                        <!-- 🌟 仿 Agoda 區間日曆選擇器 -->
                         <div class="col-span-2 relative">
-                            <label class="block text-sm font-bold text-gray-700 mb-1">入住期間 (點擊選擇區間)</label>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">入住期間</label>
                             <div id="dateRangeWrapper"
                                 class="flex items-center rounded-md border border-gray-300 bg-white p-2.5 cursor-pointer hover:border-blue-500 hover:ring-1 hover:ring-blue-500 transition shadow-sm">
                                 <div class="flex-1 text-center">
@@ -201,10 +173,8 @@
                                     <div class="font-bold text-blue-700 text-lg">{{ formatShortDate(startDate) }}</div>
                                 </div>
                                 <div class="px-2 text-gray-400">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                     </svg>
                                 </div>
                                 <div class="flex-1 text-center">
@@ -212,11 +182,9 @@
                                     <div class="font-bold text-blue-700 text-lg">{{ formatShortDate(endDate) }}</div>
                                 </div>
                             </div>
-                            <!-- 隱藏的實體 input 給 Flatpickr 綁定用 -->
                             <input type="text" id="dateRangePicker" class="hidden">
                         </div>
 
-                        <!-- 價錢設定 -->
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">平日價格/晚</label>
@@ -230,48 +198,38 @@
                             </div>
                         </div>
 
-                        <!-- 自動計算開關 -->
                         <div class="flex items-center mt-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
                             <input type="checkbox" v-model="autoCalculate" id="autoCalc"
                                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="autoCalc" class="ml-2 block text-sm font-bold text-blue-800">自動計算天數與平假日</label>
                         </div>
 
-                        <!-- 國定假日設定區塊 -->
                         <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                             <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYYMMDD)</label>
-                            <p class="text-xs text-gray-500 mb-2">每行一天(直接輸入數字，如 20260404)。自動將此日期與「前夕」視為假日。</p>
                             <textarea v-model="holidaysText" rows="6"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
                         </div>
 
-                        <!-- 總計設定 -->
-                        <div class="space-y-3">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-1">總天數 (晚)</label>
-                                    <input type="number" v-model="nights" :disabled="autoCalculate"
-                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-1">總計金額 (元)</label>
-                                    <input type="number" v-model="total" :disabled="autoCalculate"
-                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
-                                </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">總天數 (晚)</label>
+                                <input type="number" v-model="nights" :disabled="autoCalculate"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">總計金額 (元)</label>
+                                <input type="number" v-model="total" :disabled="autoCalculate"
+                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border disabled:bg-gray-200 disabled:text-gray-500 transition-colors">
                             </div>
                         </div>
                     </div>
 
-                    <!-- 通用版列印按鈕 -->
                     <div class="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
                         <button @click="printDoc"
-                            class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                            class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-md text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition">
                             列印停車證明
                         </button>
-
-                        <!-- 🌟 專屬版權宣告 (僅在網頁顯示，列印時自動隱藏) -->
-                        <div
-                            class="pt-2 mt-2 border-t border-gray-200 text-center text-xs text-gray-400 font-bold tracking-widest">
+                        <div class="pt-2 mt-2 border-t border-gray-200 text-center text-xs text-gray-400 font-bold tracking-widest">
                             版權所有 © 由李汪晏製作
                         </div>
                     </div>
@@ -280,25 +238,16 @@
 
             <!-- 右側預覽區 -->
             <div class="print-wrapper flex-1 flex justify-center items-center overflow-auto p-8 relative bg-gray-200">
-
-                <!-- 證明書本體 -->
                 <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
-
-                    <!-- Logo / Header 區塊 -->
+                    <!-- Logo 區塊 -->
                     <div class="w-full flex justify-center pt-[2mm] pb-[2mm]">
-                        <img src="LOGO.jpg" alt="碼頭休閒大飯店 HARBOR RESORT HOTEL"
-                            class="h-[80mm] object-contain inline-block">
+                        <img src="LOGO.jpg" alt="碼頭休閒大飯店" class="h-[80mm] object-contain inline-block">
                     </div>
 
                     <!-- 證明書內容區塊 -->
                     <div class="flex flex-col items-center flex-1 w-full mt-[8mm]">
-                        <!-- 標題加粗並設定純黑 -->
-                        <h1 class="text-[22pt] font-extrabold text-black tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明
-                        </h1>
-
-                        <!-- 內文靠左對齊，設定為 18pt、強制加粗(font-bold) 與 純黑(text-black) -->
+                        <h1 class="text-[22pt] font-black text-black tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明</h1>
                         <div class="text-[18pt] font-bold text-black leading-[2.2] w-[130mm] text-left tracking-wide">
-                            <!-- 🌟 車牌強制大寫 -->
                             <p>茲證明{{ plate ? plate.toUpperCase() : '_____' }}，一台{{ vehicleType }},</p>
                             <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
                             <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
@@ -309,20 +258,17 @@
 
                     <!-- Footer 簽章區塊 -->
                     <div class="w-full flex justify-end pr-[25mm] mt-auto">
-                        <!-- 簽章也加粗變黑 -->
-                        <div class="text-[15pt] text-right font-extrabold text-black leading-[1.8] tracking-widest">
+                        <div class="text-[15pt] text-right font-black text-black leading-[1.8] tracking-widest">
                             <p>水 沙 連 大 飯 店</p>
                             <p>碼 頭 精 品 旅 店</p>
                         </div>
                     </div>
-
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Vue 應用程式邏輯 -->
     <script>
         const { createApp } = Vue;
 
@@ -355,36 +301,23 @@
             },
             computed: {
                 formattedPlate: {
-                    get() {
-                        return this.plate;
-                    },
+                    get() { return this.plate; },
                     set(val) {
-                        // 1. 完全移除包含 '-' 的所有非英數字元，並轉為大寫
                         let cleaned = val.replace(/[^A-Za-z0-9]/ig, '').toUpperCase();
                         let result = cleaned;
-
-                        // 判斷台灣車牌格式並自動插入 '-'
-                        // 車牌總長度通常是 6~7 碼
                         if (cleaned.length >= 4) {
-                            // (A) 前 3 碼都是英文字母 (例如：ABC-1234, ABC-123)
                             if (/^[A-Z]{3}/.test(cleaned)) {
                                 result = cleaned.substring(0, 3) + '-' + cleaned.substring(3);
-                            }
-                            // (B) 舊式車牌開頭是 4 個數字 (例如：1234-AB)
-                            else if (/^[0-9]{4}/.test(cleaned)) {
+                            } else if (/^[0-9]{4}/.test(cleaned)) {
                                 result = cleaned.substring(0, 4) + '-' + cleaned.substring(4);
-                            }
-                            // (C) 其他情況 (例如：AB-1234, 3W-2256, MY-123 等)，通常是前 2 碼後接 dash
-                            else {
+                            } else {
                                 result = cleaned.substring(0, 2) + '-' + cleaned.substring(2);
                             }
                         } else if (cleaned.length === 3) {
-                            // 當輸入到第三個字元時，如果前兩個字元是數字與字母組合(不全是ABC)，我們先幫他在第2碼後加Dash
                             if (!/^[A-Z]{3}$/.test(cleaned) && !/^[0-9]{3}$/.test(cleaned)) {
                                 result = cleaned.substring(0, 2) + '-' + cleaned.substring(2);
                             }
                         }
-
                         this.plate = result;
                     }
                 },
@@ -402,11 +335,9 @@
             watch: {
                 vehicleType(newVal) {
                     if (newVal === '遊覽車') {
-                        this.weekdayPrice = 400;
-                        this.weekendPrice = 400;
+                        this.weekdayPrice = 400; this.weekendPrice = 400;
                     } else {
-                        this.weekdayPrice = 200;
-                        this.weekendPrice = 250;
+                        this.weekdayPrice = 200; this.weekendPrice = 250;
                     }
                     if (this.autoCalculate) this.calculateAll();
                 },
@@ -415,109 +346,59 @@
                 holidaysText() { if (this.autoCalculate) this.calculateAll(); }
             },
             methods: {
-                // 產生供左側按鈕顯示用的短日期 (例如：3月6日)
                 formatShortDate(dateStr) {
                     if (!dateStr) return '--/--';
                     const parts = dateStr.split('-');
-                    if (parts.length === 3) {
-                        return `${parseInt(parts[1])}月${parseInt(parts[2])}日`;
-                    }
-                    return dateStr;
+                    return parts.length === 3 ? `${parseInt(parts[1])}月${parseInt(parts[2])}日` : dateStr;
                 },
-                // 產生供右側證明書顯示用的長日期 (例如：2026年3月6日)
                 formatDate(dateStr) {
                     if (!dateStr) return '____年__月__日';
                     const parts = dateStr.split('-');
-                    if (parts.length === 3) {
-                        return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
-                    }
-                    return dateStr;
+                    return parts.length === 3 ? `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日` : dateStr;
                 },
                 calculateAll() {
                     if (this.startDate && this.endDate) {
                         const start = new Date(this.startDate);
                         const end = new Date(this.endDate);
-                        const diffTime = end - start;
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
+                        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
                         if (diffDays > 0) {
                             this.nights = diffDays;
-                            let wDays = 0;
-                            let wEnds = 0;
+                            let wDays = 0, wEnds = 0;
                             let currDate = new Date(start);
-
-                            // 自動清除輸入框內的符號或空白，只抓取 8 碼數字
                             let holidayArray = this.holidaysText.split('\n').map(s => s.replace(/[-\s]/g, '')).filter(s => s.length === 8);
-
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
-
-                                // 轉成 YYYYMMDD 的無符號格式
                                 let todayStr = currDate.getFullYear() + String(currDate.getMonth() + 1).padStart(2, '0') + String(currDate.getDate()).padStart(2, '0');
-
-                                let tmrDate = new Date(currDate);
-                                tmrDate.setDate(tmrDate.getDate() + 1);
-                                // 轉成 YYYYMMDD 的無符號格式
+                                let tmrDate = new Date(currDate); tmrDate.setDate(tmrDate.getDate() + 1);
                                 let tmrStr = tmrDate.getFullYear() + String(tmrDate.getMonth() + 1).padStart(2, '0') + String(tmrDate.getDate()).padStart(2, '0');
-
                                 if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr) || holidayArray.includes(tmrStr)) {
                                     wEnds++;
-                                } else {
-                                    wDays++;
-                                }
+                                } else { wDays++; }
                                 currDate.setDate(currDate.getDate() + 1);
                             }
-
-                            this.weekdayNights = wDays;
-                            this.weekendNights = wEnds;
+                            this.weekdayNights = wDays; this.weekendNights = wEnds;
                             this.total = (wDays * this.weekdayPrice) + (wEnds * this.weekendPrice);
-
-                            if (this.weekdayPrice === this.weekendPrice) {
-                                this.manualPriceDesc = `${this.weekdayPrice}元/晚`;
-                            } else {
-                                let desc = [];
-                                if (wDays > 0) desc.push(`平日${this.weekdayPrice}元/晚` + (wEnds > 0 ? `(${wDays}晚)` : ''));
-                                if (wEnds > 0) desc.push(`假日${this.weekendPrice}元/晚` + (wDays > 0 ? `(${wEnds}晚)` : ''));
-                                this.manualPriceDesc = desc.join(', ');
-                            }
                         } else {
-                            this.nights = 0;
-                            this.weekdayNights = 0;
-                            this.weekendNights = 0;
-                            this.total = 0;
+                            this.nights = 0; this.weekdayNights = 0; this.weekendNights = 0; this.total = 0;
                         }
                     }
                 },
-                printDoc() {
-                    window.print();
-                }
+                printDoc() { window.print(); }
             },
             mounted() {
-                // 🌟 初始化 Flatpickr 日曆 (設定為區間模式)
                 const fp = flatpickr("#dateRangePicker", {
-                    mode: "range",
-                    locale: "zh_tw",      // 載入繁體中文
-                    dateFormat: "Y-m-d",
+                    mode: "range", locale: "zh_tw", dateFormat: "Y-m-d",
                     defaultDate: [this.startDate, this.endDate],
                     onChange: (selectedDates) => {
-                        // 必須選擇了兩個日期(起與迄)才觸發計算
                         if (selectedDates.length === 2) {
-                            // 轉回本地時間的 YYYY-MM-DD
                             const toLocalStr = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                             this.startDate = toLocalStr(selectedDates[0]);
                             this.endDate = toLocalStr(selectedDates[1]);
-
-                            // 更新後立即執行計算
                             if (this.autoCalculate) this.calculateAll();
                         }
                     }
                 });
-
-                // 點擊我們自訂的按鈕時，打開日曆
-                document.getElementById('dateRangeWrapper').addEventListener('click', () => {
-                    fp.open();
-                });
-
+                document.getElementById('dateRangeWrapper').addEventListener('click', () => { fp.open(); });
                 this.calculateAll();
             }
         }).mount('#app');

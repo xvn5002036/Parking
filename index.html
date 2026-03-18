@@ -156,7 +156,10 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-1">車牌號碼</label>
                                 <input type="text" v-model="formattedPlate" placeholder="例如：ABC-1122"
                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border bg-gray-50 text-lg uppercase"
-                                    maxlength="9">
+                                    maxlength="9" inputmode="latin" autocomplete="off" autocapitalize="characters"
+                                    spellcheck="false" pattern="[A-Za-z0-9-]*"
+                                    @beforeinput="allowPlateInput" @compositionend="handlePlateCompositionEnd"
+                                    @paste.prevent="handlePlatePaste">
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-sm font-bold text-gray-700 mb-1">車種類型</label>
@@ -309,22 +312,7 @@
                 formattedPlate: {
                     get() { return this.plate; },
                     set(val) {
-                        let cleaned = val.replace(/[^A-Za-z0-9]/ig, '').toUpperCase();
-                        let result = cleaned;
-                        if (cleaned.length >= 4) {
-                            if (/^[A-Z]{3}/.test(cleaned)) {
-                                result = cleaned.substring(0, 3) + '-' + cleaned.substring(3);
-                            } else if (/^[0-9]{4}/.test(cleaned)) {
-                                result = cleaned.substring(0, 4) + '-' + cleaned.substring(4);
-                            } else {
-                                result = cleaned.substring(0, 2) + '-' + cleaned.substring(2);
-                            }
-                        } else if (cleaned.length === 3) {
-                            if (!/^[A-Z]{3}$/.test(cleaned) && !/^[0-9]{3}$/.test(cleaned)) {
-                                result = cleaned.substring(0, 2) + '-' + cleaned.substring(2);
-                            }
-                        }
-                        this.plate = result;
+                        this.plate = this.formatPlate(val);
                     }
                 },
                 priceDescription() {
@@ -354,6 +342,39 @@
                 endDate() { if (this.autoCalculate) this.calculateAll(); }
             },
             methods: {
+                formatPlate(value) {
+                    let cleaned = String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                    let result = cleaned;
+                    if (cleaned.length >= 4) {
+                        if (/^[A-Z]{3}/.test(cleaned)) {
+                            result = cleaned.substring(0, 3) + '-' + cleaned.substring(3);
+                        } else if (/^[0-9]{4}/.test(cleaned)) {
+                            result = cleaned.substring(0, 4) + '-' + cleaned.substring(4);
+                        } else {
+                            result = cleaned.substring(0, 2) + '-' + cleaned.substring(2);
+                        }
+                    } else if (cleaned.length === 3) {
+                        if (!/^[A-Z]{3}$/.test(cleaned) && !/^[0-9]{3}$/.test(cleaned)) {
+                            result = cleaned.substring(0, 2) + '-' + cleaned.substring(2);
+                        }
+                    }
+                    return result.substring(0, 9);
+                },
+                allowPlateInput(event) {
+                    if (event.inputType && !event.inputType.startsWith('insert')) return;
+                    if (event.data && /[^A-Za-z0-9-]/.test(event.data)) {
+                        event.preventDefault();
+                    }
+                },
+                handlePlateCompositionEnd(event) {
+                    this.plate = this.formatPlate(event.target.value);
+                    event.target.value = this.plate;
+                },
+                handlePlatePaste(event) {
+                    const pastedText = event.clipboardData ? event.clipboardData.getData('text') : '';
+                    this.plate = this.formatPlate(pastedText);
+                    event.target.value = this.plate;
+                },
                 formatShortDate(dateStr) {
                     if (!dateStr) return '--/--';
                     const parts = dateStr.split('-');

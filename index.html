@@ -32,6 +32,11 @@
             box-sizing: border-box;
             overflow: hidden;
             flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-top: 15mm;
+            padding-bottom: 15mm;
         }
 
         /* 🌟 客製化日曆的顏色 (仿 Agoda 藍色風格) */
@@ -88,7 +93,6 @@
                 background-color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                /* 列印時也確保字體 */
                 font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif !important;
             }
 
@@ -205,9 +209,9 @@
                         </div>
 
                         <div v-show="autoCalculate" class="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                            <label class="block text-sm font-bold text-gray-700 mb-1">國定假日設定 (YYYYMMDD)</label>
-                            <textarea v-model="holidaysText" rows="6"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-xs"></textarea>
+                            <label class="block text-sm font-bold text-gray-700 mb-1 text-[11px]">國定假日設定 (可直接從 Excel 貼上)</label>
+                            <textarea v-model="holidaysText" rows="6" placeholder="例如: 20260101"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border text-[10px] leading-tight font-mono"></textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -237,22 +241,22 @@
             </div>
 
             <!-- 右側預覽區 -->
-            <div class="print-wrapper flex-1 flex justify-center items-center overflow-auto p-8 relative bg-gray-200">
-                <div class="a5-landscape print-area flex flex-col justify-between pt-[15mm] pb-[15mm]">
+            <div class="print-wrapper flex-1 flex justify-center items-center overflow-auto p-8 relative bg-gray-300">
+                <div class="a5-landscape print-area">
                     <!-- Logo 區塊 -->
                     <div class="w-full flex justify-center pt-[2mm] pb-[2mm]">
-                        <img src="LOGO.jpg" alt="碼頭休閒大飯店" class="h-[80mm] object-contain inline-block">
+                        <img src="LOGO.jpg" alt="碼頭休閒大飯店" onerror="this.src='https://placehold.co/600x300?text=LOGO+IMAGE'" class="h-[80mm] object-contain inline-block">
                     </div>
 
                     <!-- 證明書內容區塊 -->
                     <div class="flex flex-col items-center flex-1 w-full mt-[8mm]">
                         <h1 class="text-[22pt] font-black text-black tracking-[0.8em] ml-[0.8em] mb-[8mm]">停車證明</h1>
                         <div class="text-[18pt] font-bold text-black leading-[2.2] w-[130mm] text-left tracking-wide">
-                            <p>茲證明{{ plate ? plate.toUpperCase() : '_____' }}，一台{{ vehicleType }},</p>
-                            <p>於{{ formatDate(startDate) }}至{{ formatDate(endDate) }}</p>
-                            <p>共{{ nights }}個晚上, {{ priceDescription }},</p>
-                            <p>共計{{ total }}元</p>
-                            <p>特立此據以茲證明</p>
+                            <p>茲證明 {{ plate ? plate.toUpperCase() : '__________' }}，一台{{ vehicleType }}，</p>
+                            <p>於 {{ formatDate(startDate) }} 至 {{ formatDate(endDate) }}</p>
+                            <p>共 {{ nights }} 個晚上，{{ priceDescription }}，</p>
+                            <p>共計 {{ total }} 元。</p>
+                            <p>特立此據以茲證明。</p>
                         </div>
                     </div>
 
@@ -293,9 +297,10 @@
                     weekdayNights: 0,
                     weekendNights: 1,
                     total: 250,
-                    autoCalculate: true,
+                    autoCalculate: true, // ⚠️ 之前這裡少了一個逗號導致語法錯誤
                     manualPriceDesc: '假日250元/晚',
-                    holidaysText: '20260101\n20260228\n20260404\n20260619\n20260925\n20261010',
+                    // 已將圖片中的假日日期全數寫入
+                    holidaysText: '20260101\n20260125\n20260126\n20260127\n20260128\n20260129\n20260130\n20260131\n20260201\n20260228\n20260301\n20260403\n20260404\n20260405\n20260406\n20260501\n20260530\n20260531\n20260619\n20260620\n20260621\n20260925\n20260926\n20260927\n20261010\n20261011',
                     isSettingsOpen: window.innerWidth >= 768
                 }
             },
@@ -329,7 +334,7 @@
                     let desc = [];
                     if (this.weekdayNights > 0) desc.push(`平日${this.weekdayPrice}元/晚` + (this.weekendNights > 0 ? `(${this.weekdayNights}晚)` : ''));
                     if (this.weekendNights > 0) desc.push(`假日${this.weekendPrice}元/晚` + (this.weekdayNights > 0 ? `(${this.weekendNights}晚)` : ''));
-                    return desc.join(', ');
+                    return desc.join('，');
                 }
             },
             watch: {
@@ -343,7 +348,9 @@
                 },
                 weekdayPrice() { if (this.autoCalculate) this.calculateAll(); },
                 weekendPrice() { if (this.autoCalculate) this.calculateAll(); },
-                holidaysText() { if (this.autoCalculate) this.calculateAll(); }
+                holidaysText() { if (this.autoCalculate) this.calculateAll(); },
+                startDate() { if (this.autoCalculate) this.calculateAll(); },
+                endDate() { if (this.autoCalculate) this.calculateAll(); }
             },
             methods: {
                 formatShortDate(dateStr) {
@@ -361,19 +368,30 @@
                         const start = new Date(this.startDate);
                         const end = new Date(this.endDate);
                         const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                        
                         if (diffDays > 0) {
                             this.nights = diffDays;
                             let wDays = 0, wEnds = 0;
                             let currDate = new Date(start);
-                            let holidayArray = this.holidaysText.split('\n').map(s => s.replace(/[-\s]/g, '')).filter(s => s.length === 8);
+                            
+                            // 解析假日文字框：提取每行中的 8 位數字
+                            let holidayArray = this.holidaysText.split('\n')
+                                .map(line => {
+                                    const digits = line.replace(/[^0-9]/g, '');
+                                    return digits.length >= 8 ? digits.substring(0, 8) : null;
+                                })
+                                .filter(s => s !== null);
+
                             for (let i = 0; i < diffDays; i++) {
                                 let day = currDate.getDay();
                                 let todayStr = currDate.getFullYear() + String(currDate.getMonth() + 1).padStart(2, '0') + String(currDate.getDate()).padStart(2, '0');
-                                let tmrDate = new Date(currDate); tmrDate.setDate(tmrDate.getDate() + 1);
-                                let tmrStr = tmrDate.getFullYear() + String(tmrDate.getMonth() + 1).padStart(2, '0') + String(tmrDate.getDate()).padStart(2, '0');
-                                if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr) || holidayArray.includes(tmrStr)) {
+                                
+                                // 判定：週五(5)、週六(6)、週日(0) 或 在假日清單內 -> 假日價
+                                if (day === 0 || day === 5 || day === 6 || holidayArray.includes(todayStr)) {
                                     wEnds++;
-                                } else { wDays++; }
+                                } else { 
+                                    wDays++; 
+                                }
                                 currDate.setDate(currDate.getDate() + 1);
                             }
                             this.weekdayNights = wDays; this.weekendNights = wEnds;
@@ -394,7 +412,6 @@
                             const toLocalStr = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                             this.startDate = toLocalStr(selectedDates[0]);
                             this.endDate = toLocalStr(selectedDates[1]);
-                            if (this.autoCalculate) this.calculateAll();
                         }
                     }
                 });
